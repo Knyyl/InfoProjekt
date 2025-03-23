@@ -13,7 +13,7 @@ public class GamePanel extends JPanel implements Runnable {
     final int maxScreenCol = 40; //modify screen size here x
     final int maxScreenRow = 22; // same as above y
     final int screenWidth = tileSize * maxScreenCol;  // 1980 pixels
-    final int screenHeight = tileSize * maxScreenRow; // 1056  pixels basically full hd, just problem with it cus cant use half value (22.5 not possible)
+    final int screenHeight = tileSize * maxScreenRow + 24; // 1056  + 24, cus fullhd by multiplication with 16 not possilbe
 
     //FPS
     int FPS = 300;
