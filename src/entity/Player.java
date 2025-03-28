@@ -29,17 +29,17 @@ public class Player extends Entity{
         speed = 4;// 
         jumpspeed = 4;
     }
-    public void update(){
-        if(keyH.upPressed && !isJumping && y == groundY) { // Start jump only if not jumping and on the ground
-            isJumping = true;
-            jumpHeight = maxJumpHeight; // Set jump height to max
+    public void update(){   
+        if(keyH.upPressed && !isJumping && y == groundY) { // Start jump only if not jumping and on the ground, 
+            isJumping = true; // the jumping process is only running while isJumping=true
+            jumpHeight = maxJumpHeight; // Set jump height to max, it controls jump length and height
         }
 
         // Perform jump action
-        if(isJumping) {
+        if(isJumping) { // runs if jump conditions met
             if(jumpHeight > 0) {
                 y -= jumpspeed;  // Move player upwards
-                jumpHeight -= jumpspeed;
+                jumpHeight -= jumpspeed; // limits and ends the jump at jump height
             } else {
                 isJumping = false;  // End jump once jump height is reached
             }
@@ -47,7 +47,7 @@ public class Player extends Entity{
         else {
             // Add gravity effect to bring the player down slowly when not jumping
             if(y < groundY) { // Ensure player doesn't fall below ground level
-                y += jumpspeed;
+                y += jumpspeed; // falling
             }
         }
 
