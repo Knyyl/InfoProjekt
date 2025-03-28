@@ -9,7 +9,7 @@ public class Player extends Entity{
     GamePanel gp;
     KeyHandler keyH;
     int jumpspeed;
-    // Jumping Variables
+    // Jumping variables
     boolean isJumping = false; // to track if player is jumping
     int jumpHeight = 0; // height of the jump
     final int maxJumpHeight = 150; // maximum jump height
