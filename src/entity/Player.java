@@ -26,7 +26,7 @@ public class Player extends Entity{
     public void setDefaultValues(){
         x = 100;
         y = 100;
-        speed = 4;
+        speed = 4;// 
         jumpspeed = 4;
     }
     public void update(){
@@ -51,7 +51,7 @@ public class Player extends Entity{
             }
         }
 
-        if(keyH.rightPressed) {
+        if(keyH.rightPressed) { // how do we need that,  the player is not moving, reuse for obstacle
             x = x + speed;
         }
     }
