@@ -1,6 +1,8 @@
 package main;
 
+import entity.Obstacle;
 import entity.Player;
+import entity.AirO;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,19 +23,8 @@ public class GamePanel extends JPanel implements Runnable {
     KeyHandler keyH = new KeyHandler();
     Thread gameThread; //game needs time
     Player player = new Player(this,keyH);
-
-    //player default position
-    int playerX = 100;
-    int playerY = 600;
-    //player walk speed -> is map movement speed, as player will stay still for this game and only map will move
-    int playerSpeed = 4;
-    int playerJumpSpeed = 2;
-
-    // Jumping Variables
-    boolean isJumping = false; // to track if player is jumping
-    int jumpHeight = 0; // height of the jump
-    final int maxJumpHeight = 150; // maximum jump height
-    final int groundY = 600; // Y position of the ground
+    Obstacle obstacle = new Obstacle(this);
+    AirO airo = new AirO(this);
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -96,8 +87,19 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void update() {
+        obstacle.update();
         player.update();
+        airo.update();
+        //Kills game if player touches obstacle, with slight location modification for better visuals
+        if(player.x  == obstacle.x && player.y  == obstacle.y){
+            System.exit(0);
+        }
+        //else if(player.x == obstacle.x && player.y == obstacle.y){
+            //System.exit(0);
+
+        //}
     }
+
 
     public void paintComponent(Graphics g){
         super.paintComponent(g);
@@ -105,6 +107,8 @@ public class GamePanel extends JPanel implements Runnable {
         Graphics2D g2 = (Graphics2D)g;
         //Drawing character placeholder
         player.draw(g2);
+        obstacle.draw(g2);
+        airo.draw(g2);
 
         g2.dispose();
     }
