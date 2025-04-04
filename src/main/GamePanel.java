@@ -17,14 +17,18 @@ public class GamePanel extends JPanel implements Runnable {
     final int screenWidth = tileSize * maxScreenCol;  // 1980 pixels
     final int screenHeight = tileSize * maxScreenRow + 24; // 1056  + 24, cus fullhd by multiplication with 16 not possilbe
 
+
     //FPS
-    int FPS = 300;
+    int FPS = 500;
 
     KeyHandler keyH = new KeyHandler();
     Thread gameThread; //game needs time
     Player player = new Player(this,keyH);
     Obstacle obstacle = new Obstacle(this);
+    Obstacle obstacle2 = new Obstacle(this);
     AirO airo = new AirO(this);
+    AirO airo2 = new AirO(this);
+
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -88,16 +92,19 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void update() {
         obstacle.update();
+        obstacle2.update();
         player.update();
         airo.update();
+        airo2.update();
+        //unfinished
         //Kills game if player touches obstacle, with slight location modification for better visuals
-        if(player.x  == obstacle.x && player.y  == obstacle.y){
+        if(player.x + tileSize  == obstacle.x && player.y + tileSize  == obstacle.y){
             System.exit(0);
         }
-        //else if(player.x == obstacle.x && player.y == obstacle.y){
+        else if(player.x - tileSize == obstacle.x && player.y - tileSize == obstacle.y){
             //System.exit(0);
 
-        //}
+        }
     }
 
 
@@ -108,7 +115,9 @@ public class GamePanel extends JPanel implements Runnable {
         //Drawing character placeholder
         player.draw(g2);
         obstacle.draw(g2);
+        obstacle2.draw(g2);
         airo.draw(g2);
+        airo2.draw(g2);
 
         g2.dispose();
     }

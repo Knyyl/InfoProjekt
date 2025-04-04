@@ -1,10 +1,11 @@
 package entity;
 
 import main.GamePanel;
-
+import java.util.Random;
 import java.awt.*;
 
 public class Obstacle extends Entity {
+    Random rand = new Random();
     public Obstacle(GamePanel gp){
         this.gp = gp;
         setDefaultValues();
@@ -14,15 +15,16 @@ public class Obstacle extends Entity {
     GamePanel gp;
 
     public void setDefaultValues(){
-        x = 1920;
+        //int x = rand.nextInt(1922) + 6;
+        x = rand.nextInt(1930) + 2000;
         y = 600;
-        speed = 1;
+        speed = 0.5;
     }
     public void update(){
         speed =  speed * 1.0001;
         x = (int) (x - speed);
         if(x <= 0){
-            x = 1920;
+            x = rand.nextInt(1920) + 2000;
         }
     }
     public void draw(Graphics2D g2){
