@@ -2,5 +2,5 @@ package entity;
 
 public class Entity {
     public int x, y;
-    public double speed;
+    public static double speed;
 }

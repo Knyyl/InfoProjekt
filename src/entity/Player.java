@@ -5,59 +5,69 @@ import main.KeyHandler;
 
 import java.awt.*;
 
-public class Player extends Entity{
+public class Player extends Entity {
     GamePanel gp;
     KeyHandler keyH;
-    int jumpspeed;
+
+    // Dimensions for hitbox
+    public int width;
+    public int height;
+
     // Jumping Variables
-    boolean isJumping = false; // to track if player is jumping
-    int jumpHeight = 0; // height of the jump
-    final int maxJumpHeight = 150; // maximum jump height
-    final int groundY = 600; // Y position of the ground
+    boolean isJumping = false;
+    int jumpHeight = 0;
+    final int maxJumpHeight = 150;
+    final int groundY = 600;
 
+    public static int jumpspeed;
 
-    public Player(GamePanel gp, KeyHandler keyH){
+    public Player(GamePanel gp, KeyHandler keyH) {
         this.gp = gp;
         this.keyH = keyH;
 
-        setDefaultValues();
+        this.width = gp.tileSize;
+        this.height = gp.tileSize;
 
+        setDefaultValues();
     }
-    public void setDefaultValues(){
+
+    public void setDefaultValues() {
         x = 100;
-        y = 100;
+        y = groundY; // Start on the ground
         speed = 4;
         jumpspeed = 1;
     }
-    public void update(){
-        if(keyH.upPressed && !isJumping && y == groundY) { // Start jump only if not jumping and on the ground
+
+    public void update() {
+        if (keyH.upPressed && !isJumping && y == groundY) {
             isJumping = true;
-            jumpHeight = maxJumpHeight; // Set jump height to max
+            jumpHeight = maxJumpHeight;
         }
 
-        // Perform jump action
-        if(isJumping) {
-            if(jumpHeight > 0) {
-                y -= jumpspeed;  // Move player upwards
+        if (isJumping) {
+            if (jumpHeight > 0) {
+                y -= jumpspeed;
                 jumpHeight -= jumpspeed;
             } else {
-                isJumping = false;  // End jump once jump height is reached
+                isJumping = false;
             }
-        }
-        else {
-            // Add gravity effect to bring the player down slowly when not jumping
-            if(y < groundY) { // Ensure player doesn't fall below ground level
+        } else {
+            if (y < groundY) {
                 y += jumpspeed;
             }
         }
-
-        //if(keyH.rightPressed) {
-            //x = x + speed;
-        //}
     }
-    public void draw(Graphics2D g2){
+
+    public void draw(Graphics2D g2) {
         g2.setColor(Color.white);
-        g2.fillRect(x, y, gp.tileSize, gp.tileSize);
+        g2.fillRect(x, y, width, height);
+
+        // OPTIONAL: Draw hitbox outline for debugging
+        g2.setColor(Color.red);
+        g2.drawRect(x, y, width, height);
+    }
+
+    public Rectangle getHitbox() {
+        return new Rectangle(x, y, width, height);
     }
 }
-
