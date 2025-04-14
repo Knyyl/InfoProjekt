@@ -11,11 +11,12 @@ import java.awt.event.MouseEvent;
 public class GamePanel extends JPanel implements Runnable {
     Thread menuListenerThread;
     MainMenu mainMenu;
+    MenuButton restartButton; // Added for game over screen
 
     public enum GameState {
         MAIN_MENU,
         GAMEPLAY,
-        GAME_OVER;
+        GAME_OVER
     }
 
     private MusicPlayer musicPlayer = new MusicPlayer();
@@ -38,20 +39,24 @@ public class GamePanel extends JPanel implements Runnable {
 
     KeyHandler keyH = new KeyHandler();
     Thread gameThread;
+    private volatile boolean running = false;
 
-    Player player = new Player(this, keyH);
-    Obstacle obstacle = new Obstacle(this);
-    Obstacle obstacle2 = new Obstacle(this);
-    AirO airo = new AirO(this);
-    AirO airo2 = new AirO(this);
+    Player player;
+    Obstacle obstacle;
+    Obstacle obstacle2;
+    AirO airo;
+    AirO airo2;
 
     public GamePanel() {
         mainMenu = new MainMenu(screenWidth, screenHeight);
+        restartButton = new MenuButton(screenWidth/2 - 100, screenHeight/2 + 50, 200, 50, "Restart");
+
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
         this.setBackground(Color.black);
         this.setDoubleBuffered(true);
         this.addKeyListener(keyH);
         this.setFocusable(true);
+
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -62,16 +67,17 @@ public class GamePanel extends JPanel implements Runnable {
                         }
                     }
                 }
+                else if (currentState == GameState.GAME_OVER && restartButton.isClicked(e.getX(), e.getY())) {
+                    restartGame();
+                }
             }
         });
 
-        startTime = System.nanoTime();
-
-        playMenuMusic(); // Play menu music when game launches
-
-        // Start the menu listener
+        resetGame();
+        playMenuMusic();
         startMenuListenerThread();
     }
+
     private void handleMenuClick(String buttonText) {
         switch (buttonText) {
             case "Play" -> {
@@ -81,16 +87,13 @@ public class GamePanel extends JPanel implements Runnable {
                 hasPlayedMenuMusic = false;
                 startGameThread();
             }
-            case "Settings" -> {
-                System.out.println("Settings clicked!");
-                // Placeholder — you can build settings menu later
-            }
+            case "Settings" -> System.out.println("Settings clicked!");
             case "Mute" -> {
-                musicPlayer.stop(); // or toggle mute state if you implement it
+                boolean currentlyMuted = musicPlayer.isMuted();
+                musicPlayer.setMuted(!currentlyMuted);
+                System.out.println("Mute toggled. Muted: " + !currentlyMuted);
             }
-            case "Quit" -> {
-                System.exit(0);
-            }
+            case "Quit" -> System.exit(0);
         }
     }
 
@@ -101,37 +104,45 @@ public class GamePanel extends JPanel implements Runnable {
                 try {
                     Thread.sleep(50);
                 } catch (InterruptedException e) {
-                    return; // Stop the thread cleanly if interrupted
+                    return;
                 }
             }
         });
         menuListenerThread.start();
     }
 
-
     public void startGameThread() {
-        System.out.println("Starting game thread (GAMEPLAY music)");
+        System.out.println("Starting game thread");
+
         if (menuListenerThread != null && menuListenerThread.isAlive()) {
             menuListenerThread.interrupt();
+        }
+
+        if (running && gameThread != null && gameThread.isAlive()) {
+            running = false;
+            try {
+                gameThread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         musicPlayer.stop();
         musicPlayer.playRandomFromFolder("res/music/bgm");
 
+        running = true;
         gameThread = new Thread(this);
         gameThread.start();
     }
-
 
     @Override
     public void run() {
         double drawInterval = 1000000000.0 / FPS;
         double nextDrawTime = System.nanoTime() + drawInterval;
-
         long lastTime = System.nanoTime();
         long frames = 0;
 
-        while (gameThread != null) {
+        while (running) {
             long currentTime = System.nanoTime();
 
             handleKeyPress();
@@ -148,16 +159,15 @@ public class GamePanel extends JPanel implements Runnable {
             try {
                 double remainingTime = nextDrawTime - System.nanoTime();
                 remainingTime = remainingTime / 1000000;
-
                 if (remainingTime < 0) remainingTime = 0;
-
                 Thread.sleep((long) remainingTime);
                 nextDrawTime += drawInterval;
-
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
+        System.out.println("Game thread stopped");
+        gameThread = null;
     }
 
     public void update() {
@@ -183,11 +193,9 @@ public class GamePanel extends JPanel implements Runnable {
                     playerHitbox.intersects(airOHitbox2)) {
 
                 playerdied = true;
-                Player.speed = 0;
-                Obstacle.speed = 0;
-                AirO.speed = 0;
-                player.jumpspeed = 0;
                 currentState = GameState.GAME_OVER;
+                running = false;
+                startMenuListenerThread();
             } else {
                 score = (int) (elapsedTimeInSeconds * Obstacle.speed);
             }
@@ -203,7 +211,6 @@ public class GamePanel extends JPanel implements Runnable {
             case GAMEPLAY -> drawGameplay(g2);
             case GAME_OVER -> drawGameOver(g2);
         }
-
         g2.dispose();
     }
 
@@ -227,10 +234,10 @@ public class GamePanel extends JPanel implements Runnable {
     private void drawGameOver(Graphics2D g2) {
         g2.setColor(Color.white);
         g2.setFont(new Font("Arial", Font.BOLD, 50));
-        g2.drawString("Game Over", 750, 300);
+        g2.drawString("Game Over", screenWidth/2 - 150, screenHeight/2 - 100);
         g2.setFont(new Font("Arial", Font.PLAIN, 30));
-        g2.drawString("Final Score: " + score, 750, 400);
-        g2.drawString("Press Enter to Restart", 750, 500);
+        g2.drawString("Final Score: " + score, screenWidth/2 - 100, screenHeight/2);
+        restartButton.draw(g2);
     }
 
     private void playMenuMusic() {
@@ -242,30 +249,51 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void handleKeyPress() {
         if (keyH.enterPressed) {
-            keyH.enterPressed = false; // <= move this up immediately!
-
+            keyH.enterPressed = false;
             System.out.println("Enter pressed in state: " + currentState);
 
             if (currentState == GameState.MAIN_MENU) {
-                System.out.println("Switching to GAMEPLAY...");
-                musicPlayer.stop(); // Stop menu music
+                musicPlayer.stop();
                 currentState = GameState.GAMEPLAY;
                 startTime = System.nanoTime();
                 hasPlayedMenuMusic = false;
-                startGameThread(); // Starts gameplay music
-            } else if (currentState == GameState.GAME_OVER) {
-                System.out.println("Returning to MAIN_MENU...");
-                musicPlayer.stop();     // Stop gameplay music
-                currentState = GameState.MAIN_MENU;
-                playerdied = false;
-                score = 0;
-                hasPlayedMenuMusic = false;
-                playMenuMusic();        // Resume menu music
-                startMenuListenerThread(); // <== Start listening again
+                startGameThread();
             }
-
+            else if (currentState == GameState.GAME_OVER) {
+                restartGame();
+            }
         }
     }
 
+    public void restartGame() {
+        // Stop current game thread
+        running = false;
 
+        if (gameThread != null) {
+            try {
+                gameThread.join(); // Wait for thread to finish
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Reset game state
+        resetGame();
+
+
+        // Start new game
+        currentState = GameState.GAMEPLAY;
+        startTime = System.nanoTime();
+        startGameThread(); // This should properly restart the game loop
+    }
+
+    private void resetGame() {
+        playerdied = false;
+        score = 0;
+        player = new Player(this, keyH);
+        obstacle = new Obstacle(this);
+        obstacle2 = new Obstacle(this);
+        airo = new AirO(this);
+        airo2 = new AirO(this);
+    }
 }

@@ -19,6 +19,8 @@ public class AirO extends Entity {
 
         setDefaultValues();
     }
+    public static void resetSpeeds() {
+    }
 
     public void setDefaultValues() {
         x = rand.nextInt(1930) + 20000;

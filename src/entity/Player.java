@@ -6,6 +6,7 @@ import main.KeyHandler;
 import java.awt.*;
 
 public class Player extends Entity {
+    public static double speed;
     GamePanel gp;
     KeyHandler keyH;
 

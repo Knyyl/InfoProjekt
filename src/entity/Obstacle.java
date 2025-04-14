@@ -19,7 +19,6 @@ public class Obstacle extends Entity {
 
         setDefaultValues();
     }
-
     public void setDefaultValues() {
         x = rand.nextInt(1930) + 2000;
         y = 600;
