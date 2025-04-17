@@ -41,7 +41,7 @@ public class GamePanel extends JPanel implements Runnable {
     Thread gameThread;
     private volatile boolean running = false;
 
-    Player player;
+    public Player player;
     Obstacle obstacle;
     Obstacle obstacle2;
     AirO airo;
