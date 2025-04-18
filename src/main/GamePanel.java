@@ -7,94 +7,191 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 public class GamePanel extends JPanel implements Runnable {
-    Thread menuListenerThread;
-    MainMenu mainMenu;
-    MenuButton restartButton; // Added for game over screen
-
+    // Game state management
     public enum GameState {
         MAIN_MENU,
         GAMEPLAY,
         GAME_OVER
     }
-
-    private MusicPlayer musicPlayer = new MusicPlayer();
-    private boolean hasPlayedMenuMusic = false;
-    private boolean playerdied;
-    private long startTime;
-    private int score = 0;
-
     private GameState currentState = GameState.MAIN_MENU;
 
-    final int originalTilesSize = 16;
-    final int scale = 3;
-    public final int tileSize = originalTilesSize * scale;
-    final int maxScreenCol = 40;
-    final int maxScreenRow = 22;
-    final int screenWidth = tileSize * maxScreenCol;
-    final int screenHeight = tileSize * maxScreenRow + 24;
-
-    int FPS = 500;
-
-    KeyHandler keyH = new KeyHandler();
-    Thread gameThread;
+    // Thread management
+    private Thread menuListenerThread;
+    private Thread gameThread;
     private volatile boolean running = false;
 
+    // UI Components
+    private MainMenu mainMenu;
+    private MenuButton restartButton;
+    private BufferedImage restartIcon;
+
+    // Game elements
     public Player player;
-    Obstacle obstacle;
-    Obstacle obstacle2;
-    AirO airo;
-    AirO airo2;
+    private Obstacle obstacle, obstacle2;
+    private AirO airo, airo2;
+    private KeyHandler keyH = new KeyHandler();
+
+    // Game metrics
+    private boolean playerDied;
+    private long startTime;
+    private int score = 0;
+    private final MusicPlayer musicPlayer = new MusicPlayer();
+    private boolean hasPlayedMenuMusic = false;
+
+    // Game constants
+    private static final int ORIGINAL_TILE_SIZE = 16;
+    private static final int SCALE = 3;
+    public final int TILE_SIZE = ORIGINAL_TILE_SIZE * SCALE;
+    private static final int MAX_SCREEN_COL = 40;
+    private static final int MAX_SCREEN_ROW = 22;
+    public final int SCREEN_WIDTH = TILE_SIZE * MAX_SCREEN_COL;
+    public final int SCREEN_HEIGHT = TILE_SIZE * MAX_SCREEN_ROW + 24;
+    private static final int FPS = 60;
 
     public GamePanel() {
-        mainMenu = new MainMenu(screenWidth, screenHeight);
-        restartButton = new MenuButton(screenWidth/2 - 100, screenHeight/2 + 50, 200, 50, "Restart");
+        initializeUI();
+        initializeGame();
+        setupInputHandlers();
+        loadResources();
+        startMenuSystem();
+    }
 
-        this.setPreferredSize(new Dimension(screenWidth, screenHeight));
+    private void initializeUI() {
+        this.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
         this.setBackground(Color.black);
         this.setDoubleBuffered(true);
-        this.addKeyListener(keyH);
         this.setFocusable(true);
+    }
 
+    private void initializeGame() {
+        mainMenu = new MainMenu(SCREEN_WIDTH, SCREEN_HEIGHT);
+        resetGameObjects();
+    }
+
+    private void setupInputHandlers() {
+        this.addKeyListener(keyH);
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                if (currentState == GameState.MAIN_MENU) {
-                    for (MenuButton button : mainMenu.buttons) {
-                        if (button.isClicked(e.getX(), e.getY())) {
-                            handleMenuClick(button.text);
-                        }
-                    }
-                }
-                else if (currentState == GameState.GAME_OVER && restartButton.isClicked(e.getX(), e.getY())) {
-                    restartGame();
-                }
+                handleMouseClick(e.getX(), e.getY());
             }
         });
-
-        resetGame();
-        playMenuMusic();
-        startMenuListenerThread();
     }
 
-    private void handleMenuClick(String buttonText) {
-        switch (buttonText) {
-            case "Play" -> {
-                musicPlayer.stop();
-                currentState = GameState.GAMEPLAY;
-                startTime = System.nanoTime();
-                hasPlayedMenuMusic = false;
-                startGameThread();
-            }
-            case "Settings" -> System.out.println("Settings clicked!");
-            case "Mute" -> {
-                boolean currentlyMuted = musicPlayer.isMuted();
-                musicPlayer.setMuted(!currentlyMuted);
-                System.out.println("Mute toggled. Muted: " + !currentlyMuted);
-            }
-            case "Quit" -> System.exit(0);
+    private void loadResources() {
+        try {
+            restartIcon = ImageIO.read(new File("res/menubuttons/restart.png"));
+            restartButton = new MenuButton(
+                    SCREEN_WIDTH / 2 - 32,
+                    SCREEN_HEIGHT / 2 + 50,
+                    64, 64,
+                    "restart",
+                    restartIcon
+            );
+        } catch (IOException e) {
+            System.err.println("Failed to load restart icon: " + e.getMessage());
+            restartButton = new MenuButton(
+                    SCREEN_WIDTH / 2 - 100,
+                    SCREEN_HEIGHT / 2 + 50,
+                    200, 50,
+                    "restart",
+                    null
+            );
+            restartButton.text = "Restart";
         }
+    }
+
+    private void startMenuSystem() {
+        playMenuMusic();
+        startMenuListenerThread();
+        this.requestFocusInWindow();
+    }
+
+    private void handleMouseClick(int x, int y) {
+        switch (currentState) {
+            case MAIN_MENU:
+                handleMainMenuClick(x, y);
+                break;
+            case GAME_OVER:
+                if (restartButton.isClicked(x, y)) {
+                    restartGame();
+                }
+                break;
+        }
+    }
+
+    private void handleMainMenuClick(int x, int y) {
+        for (MenuButton button : mainMenu.buttons) {
+            if (button.isClicked(x, y)) {
+                handleMenuAction(button.id);
+                return;
+            }
+        }
+    }
+
+    private void handleMenuAction(String buttonId) {
+        if (buttonId == null) return;
+
+        switch (buttonId) {
+            case "play":
+                startGame();
+                break;
+            case "settings":
+                SwingUtilities.invokeLater(() -> new SettingsMenu().setVisible(true));
+                break;
+            case "mute":
+                toggleMute();
+                mainMenu.toggleMuteState();
+                repaint();
+                break;
+            case "quit":
+                System.exit(0);
+                break;
+            default:
+                System.out.println("Unknown button: " + buttonId);
+        }
+    }
+
+    private void startGame() {
+        musicPlayer.stop();
+        currentState = GameState.GAMEPLAY;
+        startTime = System.nanoTime();
+        hasPlayedMenuMusic = false;
+
+        if (!musicPlayer.isMuted()) {
+            musicPlayer.playRandomFromFolder("res/music/bgm");
+        }
+
+        startGameThread();
+    }
+
+    private void toggleMute() {
+        boolean wasMuted = musicPlayer.isMuted();
+        musicPlayer.setMuted(!wasMuted);
+
+        if (!musicPlayer.isMuted()) {
+            if (currentState == GameState.MAIN_MENU) {
+                hasPlayedMenuMusic = false;
+                playMenuMusic();
+            } else if (currentState == GameState.GAMEPLAY) {
+                musicPlayer.playRandomFromFolder("res/music/bgm");
+            }
+        }
+    }
+
+    private void playMenuMusic() {
+        if (hasPlayedMenuMusic || musicPlayer.isMuted()) {
+            return;
+        }
+        musicPlayer.stop();
+        musicPlayer.playRandomFromFolder("res/music/menu");
+        hasPlayedMenuMusic = true;
     }
 
     private void startMenuListenerThread() {
@@ -104,6 +201,7 @@ public class GamePanel extends JPanel implements Runnable {
                 try {
                     Thread.sleep(50);
                 } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                     return;
                 }
             }
@@ -112,27 +210,27 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void startGameThread() {
-        System.out.println("Starting game thread");
+        stopExistingThreads();
+        resetGameObjects();
+        this.requestFocusInWindow();
+        running = true;
+        gameThread = new Thread(this);
+        gameThread.start();
+    }
 
+    private void stopExistingThreads() {
         if (menuListenerThread != null && menuListenerThread.isAlive()) {
             menuListenerThread.interrupt();
         }
 
-        if (running && gameThread != null && gameThread.isAlive()) {
+        if (gameThread != null && gameThread.isAlive()) {
             running = false;
             try {
                 gameThread.join();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                Thread.currentThread().interrupt();
             }
         }
-
-        musicPlayer.stop();
-        musicPlayer.playRandomFromFolder("res/music/bgm");
-
-        running = true;
-        gameThread = new Thread(this);
-        gameThread.start();
     }
 
     @Override
@@ -143,157 +241,166 @@ public class GamePanel extends JPanel implements Runnable {
         long frames = 0;
 
         while (running) {
-            long currentTime = System.nanoTime();
-
-            handleKeyPress();
             update();
             repaint();
-
             frames++;
-            if (currentTime - lastTime >= 1000000000) {
+
+            if (System.nanoTime() - lastTime >= 1000000000) {
                 System.out.println("FPS: " + frames);
                 frames = 0;
-                lastTime = currentTime;
+                lastTime = System.nanoTime();
             }
 
             try {
-                double remainingTime = nextDrawTime - System.nanoTime();
-                remainingTime = remainingTime / 1000000;
+                double remainingTime = (nextDrawTime - System.nanoTime()) / 1000000;
                 if (remainingTime < 0) remainingTime = 0;
                 Thread.sleep((long) remainingTime);
                 nextDrawTime += drawInterval;
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                Thread.currentThread().interrupt();
+                break;
             }
         }
-        System.out.println("Game thread stopped");
-        gameThread = null;
+
+        if (currentState == GameState.GAME_OVER) {
+            startMenuListenerThread();
+        }
     }
 
     public void update() {
         if (currentState == GameState.GAMEPLAY) {
-            long currentTime = System.nanoTime();
-            double elapsedTimeInSeconds = (currentTime - startTime) / 1_000_000_000.0;
-
+            double elapsedTime = (System.nanoTime() - startTime) / 1_000_000_000.0;
             player.update();
             obstacle.update();
             obstacle2.update();
             airo.update();
             airo2.update();
-
-            Rectangle playerHitbox = player.getHitbox();
-            Rectangle obstacleHitbox1 = obstacle.getHitbox();
-            Rectangle obstacleHitbox2 = obstacle2.getHitbox();
-            Rectangle airOHitbox1 = airo.getHitbox();
-            Rectangle airOHitbox2 = airo2.getHitbox();
-
-            if (playerHitbox.intersects(obstacleHitbox1) ||
-                    playerHitbox.intersects(obstacleHitbox2) ||
-                    playerHitbox.intersects(airOHitbox1) ||
-                    playerHitbox.intersects(airOHitbox2)) {
-
-                playerdied = true;
-                currentState = GameState.GAME_OVER;
-                running = false;
-                startMenuListenerThread();
-            } else {
-                score = (int) (elapsedTimeInSeconds * Obstacle.speed);
-            }
+            checkCollisions();
+            updateScore(elapsedTime);
         }
     }
 
-    public void paintComponent(Graphics g) {
+    private void checkCollisions() {
+        if (!Settings.collisionEnabled) return;
+
+        Rectangle playerHitbox = player.getHitbox();
+        if (playerHitbox.intersects(obstacle.getHitbox()) ||
+                playerHitbox.intersects(obstacle2.getHitbox()) ||
+                playerHitbox.intersects(airo.getHitbox()) ||
+                playerHitbox.intersects(airo2.getHitbox())) {
+            playerDied = true;
+            currentState = GameState.GAME_OVER;
+            running = false;
+        }
+    }
+
+    private void updateScore(double elapsedTime) {
+        score = (int) ((elapsedTime / 10) * Obstacle.speed);
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
 
         switch (currentState) {
-            case MAIN_MENU -> mainMenu.draw(g2);
-            case GAMEPLAY -> drawGameplay(g2);
-            case GAME_OVER -> drawGameOver(g2);
+            case MAIN_MENU:
+                renderMainMenu(g2);
+                break;
+            case GAMEPLAY:
+                renderGameplay(g2);
+                break;
+            case GAME_OVER:
+                renderGameOver(g2);
+                break;
         }
         g2.dispose();
     }
 
-    private void drawGameplay(Graphics2D g2) {
+    private void renderMainMenu(Graphics2D g2) {
+        mainMenu.draw(g2);
+    }
+
+    private void renderGameplay(Graphics2D g2) {
         g2.setColor(Color.white);
         g2.setFont(new Font("Arial", Font.BOLD, 24));
         g2.drawString("Score: " + score, 20, 30);
-
-        if (playerdied) {
-            g2.setFont(new Font("Arial", Font.BOLD, 50));
-            g2.drawString("You died with a score of: " + score, 650, 500);
-        }
 
         player.draw(g2);
         obstacle.draw(g2);
         obstacle2.draw(g2);
         airo.draw(g2);
         airo2.draw(g2);
+
+        if (Settings.showHitboxes) {
+            drawHitboxes(g2);
+        }
     }
 
-    private void drawGameOver(Graphics2D g2) {
+    private void drawHitboxes(Graphics2D g2) {
+        g2.setColor(Color.RED);
+        g2.draw(player.getHitbox());
+        g2.draw(obstacle.getHitbox());
+        g2.draw(obstacle2.getHitbox());
+        g2.draw(airo.getHitbox());
+        g2.draw(airo2.getHitbox());
+    }
+
+    private void renderGameOver(Graphics2D g2) {
         g2.setColor(Color.white);
         g2.setFont(new Font("Arial", Font.BOLD, 50));
-        g2.drawString("Game Over", screenWidth/2 - 150, screenHeight/2 - 100);
+        g2.drawString("Game Over", SCREEN_WIDTH / 2 - 150, SCREEN_HEIGHT / 2 - 100);
         g2.setFont(new Font("Arial", Font.PLAIN, 30));
-        g2.drawString("Final Score: " + score, screenWidth/2 - 100, screenHeight/2);
-        restartButton.draw(g2);
-    }
+        g2.drawString("Final Score: " + score, SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2);
 
-    private void playMenuMusic() {
-        if (!hasPlayedMenuMusic) {
-            musicPlayer.playRandomFromFolder("res/music/menu");
-            hasPlayedMenuMusic = true;
-        }
+        restartButton.bounds.x = SCREEN_WIDTH / 2 - 32;
+        restartButton.bounds.y = SCREEN_HEIGHT / 2 + 50;
+        restartButton.draw(g2);
     }
 
     public void handleKeyPress() {
         if (keyH.enterPressed) {
             keyH.enterPressed = false;
-            System.out.println("Enter pressed in state: " + currentState);
-
             if (currentState == GameState.MAIN_MENU) {
-                musicPlayer.stop();
-                currentState = GameState.GAMEPLAY;
-                startTime = System.nanoTime();
-                hasPlayedMenuMusic = false;
-                startGameThread();
-            }
-            else if (currentState == GameState.GAME_OVER) {
-                restartGame();
+                startGame();
             }
         }
     }
 
     public void restartGame() {
-        // Stop current game thread
-        running = false;
+        // Reset game objects and state
+        resetGameObjects();
+        currentState = GameState.GAMEPLAY;  // Changed from MAIN_MENU to GAMEPLAY
+        score = 0;
+        playerDied = false;
 
-        if (gameThread != null) {
-            try {
-                gameThread.join(); // Wait for thread to finish
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        // Stop any existing music and threads
+        musicPlayer.stop();
+        if (menuListenerThread != null && menuListenerThread.isAlive()) {
+            menuListenerThread.interrupt();
         }
 
-        // Reset game state
-        resetGame();
-
-
-        // Start new game
-        currentState = GameState.GAMEPLAY;
+        // Start the game fresh
         startTime = System.nanoTime();
-        startGameThread(); // This should properly restart the game loop
+
+        // Play game music if not muted
+        if (!musicPlayer.isMuted()) {
+            musicPlayer.playRandomFromFolder("res/music/bgm");
+        }
+
+        startGameThread();
+
+        // Ensure focus is on the panel
+        this.requestFocusInWindow();
     }
 
-    private void resetGame() {
-        playerdied = false;
-        score = 0;
+    private void resetGameObjects() {
         player = new Player(this, keyH);
         obstacle = new Obstacle(this);
         obstacle2 = new Obstacle(this);
         airo = new AirO(this);
         airo2 = new AirO(this);
+        playerDied = false;
+        score = 0;
     }
 }

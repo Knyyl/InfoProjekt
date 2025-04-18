@@ -14,8 +14,8 @@ public class AirO extends Entity {
 
     public AirO(GamePanel gp) {
         this.gp = gp;
-        this.width = gp.tileSize;
-        this.height = gp.tileSize;
+        this.width = gp.TILE_SIZE;
+        this.height = gp.TILE_SIZE;
 
         setDefaultValues();
     }
@@ -25,11 +25,12 @@ public class AirO extends Entity {
     public void setDefaultValues() {
         x = rand.nextInt(1930) + 20000;
         y = 500;
-        speed = 0.6;
+        speed = 3;
     }
 
     public void update() {
         speed = speed * 1.0001;
+        speed = Math.min(speed, 25.0); //Stops speed at certain speed, to keep game playable
         x = (int) (x - speed);
 
         if (x <= 0) {
@@ -41,9 +42,6 @@ public class AirO extends Entity {
         g2.setColor(Color.white);
         g2.fillRect(x, y, width, height);
 
-        // Optional: Draw hitbox for debugging
-        g2.setColor(Color.red);
-        g2.drawRect(x, y, width, height);
     }
 
     public Rectangle getHitbox() {

@@ -12,7 +12,7 @@ public class Obstacle extends Entity {
     BufferedImage[] frames;
     int frameIndex = 0;
     int animationCounter = 0;
-    int animationSpeed = 100; // Lower = faster animation
+    int animationSpeed = 20; // Lower = faster animation
 
     public static double speed;
     GamePanel gp;
@@ -61,11 +61,12 @@ public class Obstacle extends Entity {
         x = rand.nextInt(1930) + 2000;
         y = gp.player.y - 50;
 
-        speed = 0.5;
+        speed = 6;
     }
 
     public void update() {
         speed = speed * 1.0001;
+        speed = Math.min(speed, 25.0); //Stops speed at certain speed, to keep game playable
         x = (int) (x - speed);
 
         if (x <= 0) {
@@ -87,10 +88,6 @@ public class Obstacle extends Entity {
             g2.setColor(Color.white);
             g2.fillRect(x, y, width, height);
         }
-
-        // Optional: Hitbox for debugging
-        g2.setColor(Color.red);
-        g2.drawRect(x, y, width, height);
     }
 
     public Rectangle getHitbox() {

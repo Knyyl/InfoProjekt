@@ -8,26 +8,28 @@ import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) {
-        JFrame window = new JFrame();
-        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        window.setResizable(false);
-        window.setTitle("NAOI");
+        SwingUtilities.invokeLater(() -> {
+            JFrame window = new JFrame();
+            window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            window.setResizable(false);
+            window.setTitle("NAOI");
 
-        try {
-            Image icon = ImageIO.read(new File("res/icon/ACABI.png"));
-            window.setIconImage(icon);
-        } catch (IOException e) {
-            System.out.println("Could not load icon. ");
-        }
+            try {
+                Image icon = ImageIO.read(new File("res/icon/ACABI.png"));
+                window.setIconImage(icon);
+            } catch (IOException e) {
+                System.out.println("Could not load icon. ");
+            }
 
-        GamePanel gamePanel = new GamePanel();
-        window.add(gamePanel);
+            GamePanel gamePanel = new GamePanel();
+            window.add(gamePanel);
 
-        window.pack();
+            window.pack();
+            window.setLocationRelativeTo(null);
+            window.setVisible(true);
 
-        window.setLocationRelativeTo(null);
-        window.setVisible(true);
-
-        //gamePanel.startGameThread();
+            // Ensure focus is on the game panel
+            gamePanel.requestFocusInWindow();
+        });
     }
 }

@@ -2,70 +2,69 @@ package entity;
 
 import main.GamePanel;
 import main.KeyHandler;
-
 import java.awt.*;
 
 public class Player extends Entity {
     public static double speed;
-    GamePanel gp;
-    KeyHandler keyH;
+    private final GamePanel gp;  // Made private
+    public final KeyHandler keyH;  // Made private
 
-    // Dimensions for hitbox
     public int width;
     public int height;
 
-    // Jumping Variables
-    boolean isJumping = false;
-    int jumpHeight = 0;
-    final int maxJumpHeight = 150;
-    final int groundY = 600;
+    // Jumping and physics variables
+    private double velocityY = 0;
+    private final double gravity = 1.5;
+    private final double jumpForce = -20;
+    private final int groundY = 600;
+    private boolean onGround = true;
 
-    public static int jumpspeed;
-
+    // Main constructor
     public Player(GamePanel gp, KeyHandler keyH) {
         this.gp = gp;
         this.keyH = keyH;
-
-        this.width = gp.tileSize;
-        this.height = gp.tileSize;
-
+        this.width = gp.TILE_SIZE;
+        this.height = gp.TILE_SIZE;
         setDefaultValues();
     }
 
     public void setDefaultValues() {
         x = 100;
-        y = groundY; // Start on the ground
+        y = groundY;
         speed = 4;
-        jumpspeed = 1;
     }
 
     public void update() {
-        if (keyH.upPressed && !isJumping && y == groundY) {
-            isJumping = true;
-            jumpHeight = maxJumpHeight;
+        if (keyH == null) return;  // Safety check
+
+        // Apply gravity
+        velocityY += gravity;
+
+        // Jump input (trigger jump only once)
+        if (isJumpPressed() && onGround) {
+            velocityY = jumpForce;
+            onGround = false;
         }
 
-        if (isJumping) {
-            if (jumpHeight > 0) {
-                y -= jumpspeed;
-                jumpHeight -= jumpspeed;
-            } else {
-                isJumping = false;
-            }
-        } else {
-            if (y < groundY) {
-                y += jumpspeed;
-            }
+        // Apply velocity
+        y += (int) velocityY;
+
+        // Ground collision
+        if (y >= groundY) {
+            y = groundY;
+            velocityY = 0;
+            onGround = true;
         }
+    }
+
+    // New method to encapsulate key check
+    private boolean isJumpPressed() {
+        return keyH.upPressed;
     }
 
     public void draw(Graphics2D g2) {
         g2.setColor(Color.white);
         g2.fillRect(x, y, width, height);
-
-        // OPTIONAL: Draw hitbox outline for debugging
-        g2.setColor(Color.red);
-        g2.drawRect(x, y, width, height);
     }
 
     public Rectangle getHitbox() {
