@@ -27,9 +27,7 @@ public class GamePanel extends JPanel implements Runnable {
     private volatile boolean running = false;
 
     // UI Components
-    private MainMenu mainMenu;
-    private MenuButton restartButton;
-    private BufferedImage restartIcon;
+    private UIManager uiManager;
 
     // Game elements
     public Player player;
@@ -58,7 +56,6 @@ public class GamePanel extends JPanel implements Runnable {
         initializeUI();
         initializeGame();
         setupInputHandlers();
-        loadResources();
         startMenuSystem();
     }
 
@@ -70,7 +67,7 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     private void initializeGame() {
-        mainMenu = new MainMenu(SCREEN_WIDTH, SCREEN_HEIGHT);
+        uiManager = new UIManager(SCREEN_WIDTH, SCREEN_HEIGHT);
         resetGameObjects();
     }
 
@@ -84,28 +81,7 @@ public class GamePanel extends JPanel implements Runnable {
         });
     }
 
-    private void loadResources() {
-        try {
-            restartIcon = ImageIO.read(new File("res/menubuttons/restart.png"));
-            restartButton = new MenuButton(
-                    SCREEN_WIDTH / 2 - 32,
-                    SCREEN_HEIGHT / 2 + 50,
-                    64, 64,
-                    "restart",
-                    restartIcon
-            );
-        } catch (IOException e) {
-            System.err.println("Failed to load restart icon: " + e.getMessage());
-            restartButton = new MenuButton(
-                    SCREEN_WIDTH / 2 - 100,
-                    SCREEN_HEIGHT / 2 + 50,
-                    200, 50,
-                    "restart",
-                    null
-            );
-            restartButton.text = "Restart";
-        }
-    }
+
 
     private void startMenuSystem() {
         playMenuMusic();
@@ -116,24 +92,17 @@ public class GamePanel extends JPanel implements Runnable {
     private void handleMouseClick(int x, int y) {
         switch (currentState) {
             case MAIN_MENU:
-                handleMainMenuClick(x, y);
+                uiManager.handleMainMenuClick(x, y, this::handleMenuAction);
                 break;
             case GAME_OVER:
-                if (restartButton.isClicked(x, y)) {
+                if (uiManager.restartClicked(x, y )) {
                     restartGame();
                 }
                 break;
         }
     }
 
-    private void handleMainMenuClick(int x, int y) {
-        for (MenuButton button : mainMenu.buttons) {
-            if (button.isClicked(x, y)) {
-                handleMenuAction(button.id);
-                return;
-            }
-        }
-    }
+
 
     private void handleMenuAction(String buttonId) {
         if (buttonId == null) return;
@@ -147,7 +116,7 @@ public class GamePanel extends JPanel implements Runnable {
                 break;
             case "mute":
                 toggleMute();
-                mainMenu.toggleMuteState();
+                uiManager.toggleMuteState();
                 repaint();
                 break;
             case "quit":
@@ -318,7 +287,8 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     private void renderMainMenu(Graphics2D g2) {
-        mainMenu.draw(g2);
+
+        uiManager.drawMainMenu(g2);
     }
 
     private void renderGameplay(Graphics2D g2) {
@@ -347,15 +317,7 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     private void renderGameOver(Graphics2D g2) {
-        g2.setColor(Color.white);
-        g2.setFont(new Font("Arial", Font.BOLD, 50));
-        g2.drawString("Game Over", SCREEN_WIDTH / 2 - 150, SCREEN_HEIGHT / 2 - 100);
-        g2.setFont(new Font("Arial", Font.PLAIN, 30));
-        g2.drawString("Final Score: " + score, SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2);
-
-        restartButton.bounds.x = SCREEN_WIDTH / 2 - 32;
-        restartButton.bounds.y = SCREEN_HEIGHT / 2 + 50;
-        restartButton.draw(g2);
+        uiManager.drawGameOver(g2, score);
     }
 
     public void handleKeyPress() {
