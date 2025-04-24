@@ -1,25 +1,13 @@
 package main;
 
-import entity.Obstacle;
-import entity.Player;
-import entity.AirO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 
 public class GamePanel extends JPanel implements Runnable {
     // Game state management
-    public enum GameState {
-        MAIN_MENU,
-        GAMEPLAY,
-        GAME_OVER
-    }
-    private GameState currentState = GameState.MAIN_MENU;
+    private GameStateManager gsm;
 
     // Thread management
     private Thread menuListenerThread;
@@ -30,15 +18,11 @@ public class GamePanel extends JPanel implements Runnable {
     private UIManager uiManager;
 
     // Game elements
-    public Player player;
-    private Obstacle obstacle, obstacle2;
-    private AirO airo, airo2;
+    private GamePlayManager gpm;
     private KeyHandler keyH = new KeyHandler();
 
     // Game metrics
-    private boolean playerDied;
-    private long startTime;
-    private int score = 0;
+
     private final MusicPlayer musicPlayer = new MusicPlayer();
     private boolean hasPlayedMenuMusic = false;
 
@@ -68,6 +52,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     private void initializeGame() {
         uiManager = new UIManager(SCREEN_WIDTH, SCREEN_HEIGHT);
+        gsm = new GameStateManager();
         resetGameObjects();
     }
 
@@ -90,7 +75,7 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     private void handleMouseClick(int x, int y) {
-        switch (currentState) {
+        switch (gsm.getState()) {
             case MAIN_MENU:
                 uiManager.handleMainMenuClick(x, y, this::handleMenuAction);
                 break;
@@ -129,8 +114,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     private void startGame() {
         musicPlayer.stop();
-        currentState = GameState.GAMEPLAY;
-        startTime = System.nanoTime();
+        gsm.setState(GameStateManager.GameState.GAMEPLAY) ;
         hasPlayedMenuMusic = false;
 
         if (!musicPlayer.isMuted()) {
@@ -145,10 +129,10 @@ public class GamePanel extends JPanel implements Runnable {
         musicPlayer.setMuted(!wasMuted);
 
         if (!musicPlayer.isMuted()) {
-            if (currentState == GameState.MAIN_MENU) {
+            if (gsm.is(GameStateManager.GameState.MAIN_MENU)) {
                 hasPlayedMenuMusic = false;
                 playMenuMusic();
-            } else if (currentState == GameState.GAMEPLAY) {
+            } else if (gsm.is(GameStateManager.GameState.GAMEPLAY)) {
                 musicPlayer.playRandomFromFolder("res/music/bgm");
             }
         }
@@ -165,7 +149,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     private void startMenuListenerThread() {
         menuListenerThread = new Thread(() -> {
-            while (currentState == GameState.MAIN_MENU || currentState == GameState.GAME_OVER) {
+            while (gsm.is(GameStateManager.GameState.MAIN_MENU) || gsm.is(GameStateManager.GameState.GAME_OVER)) {
                 handleKeyPress();
                 try {
                     Thread.sleep(50);
@@ -185,6 +169,9 @@ public class GamePanel extends JPanel implements Runnable {
         running = true;
         gameThread = new Thread(this);
         gameThread.start();
+    }
+    public void setRunning(boolean running) {
+        this.running = running;
     }
 
     private void stopExistingThreads() {
@@ -210,7 +197,7 @@ public class GamePanel extends JPanel implements Runnable {
         long frames = 0;
 
         while (running) {
-            update();
+            gpm.update();
             repaint();
             frames++;
 
@@ -231,53 +218,28 @@ public class GamePanel extends JPanel implements Runnable {
             }
         }
 
-        if (currentState == GameState.GAME_OVER) {
+        if (gsm.is(GameStateManager.GameState.GAME_OVER)) {
             startMenuListenerThread();
         }
     }
 
-    public void update() {
-        if (currentState == GameState.GAMEPLAY) {
-            double elapsedTime = (System.nanoTime() - startTime) / 1_000_000_000.0;
-            player.update();
-            obstacle.update();
-            obstacle2.update();
-            airo.update();
-            airo2.update();
-            checkCollisions();
-            updateScore(elapsedTime);
-        }
-    }
 
-    private void checkCollisions() {
-        if (!Settings.collisionEnabled) return;
 
-        Rectangle playerHitbox = player.getHitbox();
-        if (playerHitbox.intersects(obstacle.getHitbox()) ||
-                playerHitbox.intersects(obstacle2.getHitbox()) ||
-                playerHitbox.intersects(airo.getHitbox()) ||
-                playerHitbox.intersects(airo2.getHitbox())) {
-            playerDied = true;
-            currentState = GameState.GAME_OVER;
-            running = false;
-        }
-    }
 
-    private void updateScore(double elapsedTime) {
-        score = (int) ((elapsedTime / 10) * Obstacle.speed);
-    }
+
+
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
 
-        switch (currentState) {
+        switch (gsm.getState()) {
             case MAIN_MENU:
                 renderMainMenu(g2);
                 break;
             case GAMEPLAY:
-                renderGameplay(g2);
+                gpm.draw(g2);
                 break;
             case GAME_OVER:
                 renderGameOver(g2);
@@ -291,39 +253,16 @@ public class GamePanel extends JPanel implements Runnable {
         uiManager.drawMainMenu(g2);
     }
 
-    private void renderGameplay(Graphics2D g2) {
-        g2.setColor(Color.white);
-        g2.setFont(new Font("Arial", Font.BOLD, 24));
-        g2.drawString("Score: " + score, 20, 30);
 
-        player.draw(g2);
-        obstacle.draw(g2);
-        obstacle2.draw(g2);
-        airo.draw(g2);
-        airo2.draw(g2);
-
-        if (Settings.showHitboxes) {
-            drawHitboxes(g2);
-        }
-    }
-
-    private void drawHitboxes(Graphics2D g2) {
-        g2.setColor(Color.RED);
-        g2.draw(player.getHitbox());
-        g2.draw(obstacle.getHitbox());
-        g2.draw(obstacle2.getHitbox());
-        g2.draw(airo.getHitbox());
-        g2.draw(airo2.getHitbox());
-    }
 
     private void renderGameOver(Graphics2D g2) {
-        uiManager.drawGameOver(g2, score);
+        uiManager.drawGameOver(g2, gpm.getScore());
     }
 
     public void handleKeyPress() {
         if (keyH.enterPressed) {
             keyH.enterPressed = false;
-            if (currentState == GameState.MAIN_MENU) {
+            if (gsm.is(GameStateManager.GameState.MAIN_MENU)) {
                 startGame();
             }
         }
@@ -332,9 +271,8 @@ public class GamePanel extends JPanel implements Runnable {
     public void restartGame() {
         // Reset game objects and state
         resetGameObjects();
-        currentState = GameState.GAMEPLAY;  // Changed from MAIN_MENU to GAMEPLAY
-        score = 0;
-        playerDied = false;
+       gsm.setState(GameStateManager.GameState.GAMEPLAY);  // Changed from MAIN_MENU to GAMEPLAY
+
 
         // Stop any existing music and threads
         musicPlayer.stop();
@@ -343,7 +281,7 @@ public class GamePanel extends JPanel implements Runnable {
         }
 
         // Start the game fresh
-        startTime = System.nanoTime();
+
 
         // Play game music if not muted
         if (!musicPlayer.isMuted()) {
@@ -356,13 +294,8 @@ public class GamePanel extends JPanel implements Runnable {
         this.requestFocusInWindow();
     }
 
+
     private void resetGameObjects() {
-        player = new Player(this, keyH);
-        obstacle = new Obstacle(this);
-        obstacle2 = new Obstacle(this);
-        airo = new AirO(this);
-        airo2 = new AirO(this);
-        playerDied = false;
-        score = 0;
+        gpm = new GamePlayManager(this, keyH, gsm );
     }
 }
