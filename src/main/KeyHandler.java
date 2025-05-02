@@ -26,7 +26,10 @@ public class KeyHandler implements KeyListener {
         }
 
         if(code == KeyEvent.VK_ENTER) {
-            enterPressed = true;  // Mark Enter key as pressed
+            enterPressed = true;
+        }
+        if(code == KeyEvent.VK_S){
+            downPressed = true;
         }
     }
 
@@ -37,13 +40,16 @@ public class KeyHandler implements KeyListener {
         if(code == KeyEvent.VK_W){
             upPressed = false;
         }
+        if(code == KeyEvent.VK_S){
+            downPressed = false;
+        }
 
         if(code == KeyEvent.VK_D){
             rightPressed = false;
         }
 
         if(code == KeyEvent.VK_ENTER) {
-            enterPressed = false;  // Mark Enter key as released
+            enterPressed = false;
         }
     }
 }
