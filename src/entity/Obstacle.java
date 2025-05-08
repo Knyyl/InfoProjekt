@@ -1,6 +1,8 @@
 package entity;
 
 import main.GamePanel;
+import main.GamePlayManager;
+
 import java.util.Random;
 import java.awt.*;
 import javax.imageio.ImageIO;
@@ -16,13 +18,15 @@ public class Obstacle extends Entity {
 
     public static double speed;
     GamePanel gp;
+    GamePlayManager gpm;
     Random rand = new Random();
 
     public int width;
     public int height;
 
-    public Obstacle(GamePanel gp) {
+    public Obstacle(GamePanel gp, GamePlayManager gpm) {
         this.gp = gp;
+        this.gpm = gpm;
         setDefaultValues();
 
         // ——— Sprite loading & pre‑scaling ———
@@ -59,7 +63,7 @@ public class Obstacle extends Entity {
 
     public void setDefaultValues() {
         x = rand.nextInt(1930) + 2000;
-        y = gp.player.y - 50;
+        y = gpm.player.y - 50;
 
         speed = 6;
     }

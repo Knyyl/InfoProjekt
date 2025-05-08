@@ -23,7 +23,7 @@ public class AirO extends Entity {
     }
 
     public void setDefaultValues() {
-        x = rand.nextInt(1930) + 20000;
+        x = rand.nextInt(1930) + 10000;
         y = 500;
         speed = 3;
     }
@@ -34,7 +34,7 @@ public class AirO extends Entity {
         x = (int) (x - speed);
 
         if (x <= 0) {
-            x = rand.nextInt(1970) + 20000;
+            x = rand.nextInt(1970) + 1000;
         }
     }
 
