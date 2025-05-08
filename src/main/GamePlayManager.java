@@ -3,9 +3,15 @@ import entity.Obstacle;
 import entity.Player;
 import entity.AirO;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 public class GamePlayManager {
+    private Movedaback wallpaper;
+    BufferedImage background;
     public Player player;
     private Obstacle obstacle, obstacle2;
     private AirO airo, airo2;
@@ -18,6 +24,11 @@ public class GamePlayManager {
 
 
     public GamePlayManager(GamePanel gp, KeyHandler keyH, GameStateManager gsm) {
+        //try {
+         //   background = ImageIO.read(new File("res/mainmenuwp/WPlvlone.png"));
+       // } catch (IOException e) {
+        //    throw new RuntimeException(e);
+       // }
         this.gp = gp;
         this.keyH = keyH;
         this.gsm = gsm;
@@ -25,6 +36,7 @@ public class GamePlayManager {
     }
 
     private void resetGame() {
+        wallpaper = new Movedaback(gp,this);
         player = new Player(gp, keyH);
         obstacle = new Obstacle(gp, this);
         obstacle2 = new Obstacle(gp, this);
@@ -38,6 +50,7 @@ public class GamePlayManager {
     public void update() {
 
             double elapsedTime = (System.nanoTime() - startTime) / 1_000_000_000.0;
+            wallpaper.update();
             player.update();
             obstacle.update();
             obstacle2.update();
@@ -48,10 +61,14 @@ public class GamePlayManager {
         }
 
     public void draw(Graphics2D g2) {
+        if (background != null) {
+            g2.drawImage(background, 0, 0, null);
+        }
         g2.setColor(Color.white);
         g2.setFont(new Font("Arial", Font.BOLD, 24));
         g2.drawString("Score: " + score, 20, 30);
 
+        wallpaper.draw(g2);
         player.draw(g2);
         obstacle.draw(g2);
         obstacle2.draw(g2);

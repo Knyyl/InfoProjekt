@@ -29,14 +29,14 @@ public class Obstacle extends Entity {
         this.gpm = gpm;
         setDefaultValues();
 
-        // ——— Sprite loading & pre‑scaling ———
+        //Sprite loading & pre‑scaling
         try {
             BufferedImage sheet = ImageIO.read(new File("res/sprites/ACAB.png"));
-            int origW = sheet.getWidth()  / 4;   // original frame width
-            int origH = sheet.getHeight();      // original frame height
-            int scaleFactor = 2;                // Bigger = bigger sprite
+            int origW = sheet.getWidth()  / 4;
+            int origH = sheet.getHeight();
+            int scaleFactor = 2;
 
-            // update your obstacle dimensions
+            // update obstacle dimensions
             width  = origW * scaleFactor;
             height = origH * scaleFactor;
 
@@ -73,7 +73,7 @@ public class Obstacle extends Entity {
         speed = Math.min(speed, 25.0); //Stops speed at certain speed, to keep game playable
         x = (int) (x - speed);
 
-        if (x <= 0) {
+        if (x <= -100) {
             x = rand.nextInt(1920) + 2000;
         }
         animationCounter++;
