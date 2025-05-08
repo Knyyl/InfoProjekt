@@ -14,8 +14,8 @@ public class Player extends Entity {
 
     // Jumping and physics variables
     private double velocityY = 0;
-    private final double gravity = 1.5;
-    private final double jumpForce = -20;
+    private double gravity = 1.5;
+    private final double jumpForce = -25;
     private final int groundY = 600;
     private boolean onGround = true;
 
@@ -36,14 +36,22 @@ public class Player extends Entity {
 
     public void update() {
         if (keyH == null) return;  // Safety check
+        if(keyH.downPressed){
+            gravity += 10;
+        }
+        if(keyH.downPressed = false){
+            gravity = 1.5;
+        }
 
         // Apply gravity
         velocityY += gravity;
 
         // Jump input (trigger jump only once)
         if (isJumpPressed() && onGround) {
+            gravity = 1.5;
             velocityY = jumpForce;
             onGround = false;
+
         }
 
         // Apply velocity
@@ -57,7 +65,6 @@ public class Player extends Entity {
         }
     }
 
-    // New method to encapsulate key check
     private boolean isJumpPressed() {
         return keyH.upPressed;
     }
