@@ -71,10 +71,12 @@ public  class UIManager {
     }
 
     public boolean restartClicked(int x, int y) {
+
         return restartButton.isClicked(x, y);
     }
 
     public void toggleMuteState() {
+
         mainMenu.toggleMuteState();
     }
 }

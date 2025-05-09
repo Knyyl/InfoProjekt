@@ -31,7 +31,8 @@ public class Obstacle extends Entity {
 
         // ——— Sprite loading & pre‑scaling ———
         try {
-            BufferedImage sheet = ImageIO.read(new File("res/sprites/ACAB.png"));
+            BufferedImage sheet = ImageIO.read(new File("res/sprites/lambo.png"));
+
             int origW = sheet.getWidth()  / 4;   // original frame width
             int origH = sheet.getHeight();      // original frame height
             int scaleFactor = 2;                // Bigger = bigger sprite

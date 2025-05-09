@@ -16,6 +16,8 @@ public class GamePlayManager {
     private final KeyHandler keyH;
     private final GameStateManager gsm;
 
+    public Settings settings;
+
 
     public GamePlayManager(GamePanel gp, KeyHandler keyH, GameStateManager gsm) {
         this.gp = gp;
@@ -36,7 +38,7 @@ public class GamePlayManager {
     }
 
     public void update() {
-
+            Settings.levelchecker();
             double elapsedTime = (System.nanoTime() - startTime) / 1_000_000_000.0;
             player.update();
             obstacle.update();
@@ -45,6 +47,7 @@ public class GamePlayManager {
             airo2.update();
             checkCollisions();
             updateScore(elapsedTime);
+            System.out.println(settings.level);
         }
 
     public void draw(Graphics2D g2) {
