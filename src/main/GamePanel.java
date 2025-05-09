@@ -290,7 +290,7 @@ public class GamePanel extends JPanel implements Runnable {
 
         startGameThread();
 
-        // Ensure focus is on the panel
+        // Ensure focus is on the pane
         this.requestFocusInWindow();
     }
 

@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class Movedaback extends Entity {
+    int backgroundWidth = 3840;
     BufferedImage backgroundImage;
     public static double speed;
     GamePanel gp;
@@ -37,41 +38,28 @@ public class Movedaback extends Entity {
     }
 
     public void setDefaultValues() {
-        x = 0; // Starting x for background 1
-        x2 = 1920; // Starting x for the second background image (to create a seamless loop)
+        x = 0;
+        x2 = backgroundWidth; // Not hardcoded to 1920 anymore
         y = 0;
-
-        speed = 6; // Speed of scrolling
+        speed = 6;
     }
 
+
     public void update() {
-        int resetwp = 0;
-        if(resetwp == 0){
-            if (x <= -1920) {
-                x = 0;
-            }
-
-            if (x2 <= 0) {
-                x2 = 1920;
-            }
-            resetwp = 1;
-        }
-        else{
-            if (x <= -0) {
-                x = 1920;
-            }
-
-            if (x2 <= 1920) {
-                x2 = 0;
-                resetwp = 0;
-            }
-        }
-        // Move both images across the screen
+        // Move both images left
         x -= speed;
         x2 -= speed;
 
-        // If an image has completely gone off the screen, reset its position to create a looping effect
+        // Reset positions when one image fully scrolls out of view
+        if (x <= -backgroundWidth) {
+            x = x2 + backgroundWidth;
+        }
+
+        if (x2 <= -backgroundWidth) {
+            x2 = x + backgroundWidth;
+        }
     }
+
 
     public void draw(Graphics2D g2) {
         // Draw both backgrounds to create the scrolling effect
