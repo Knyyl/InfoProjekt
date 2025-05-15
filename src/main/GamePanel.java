@@ -116,6 +116,7 @@ public class GamePanel extends JPanel implements Runnable {
         musicPlayer.stop();
         gsm.setState(GameStateManager.GameState.GAMEPLAY) ;
         hasPlayedMenuMusic = false;
+        Settings.levelchecker();
 
         if (!musicPlayer.isMuted()) {
             musicPlayer.playRandomFromFolder("res/music/bgm");

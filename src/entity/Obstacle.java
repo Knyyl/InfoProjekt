@@ -2,6 +2,7 @@ package entity;
 
 import main.GamePanel;
 import main.GamePlayManager;
+import main.Settings;
 
 import java.util.Random;
 import java.awt.*;
@@ -11,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class Obstacle extends Entity {
+    Settings settings;
     BufferedImage[] frames;
     int frameIndex = 0;
     int animationCounter = 0;
@@ -31,7 +33,13 @@ public class Obstacle extends Entity {
 
         // ——— Sprite loading & pre‑scaling ———
         try {
-            BufferedImage sheet = ImageIO.read(new File("res/sprites/lambo.png"));
+            BufferedImage sheet = null;
+            if(settings.level == 1){
+                sheet = ImageIO.read(new File("res/sprites/ACAB.png"));
+            }
+            else if(settings.level == 2){
+                sheet = ImageIO.read(new File("res/sprites/lambo.png"));
+            }
 
             int origW = sheet.getWidth()  / 4;   // original frame width
             int origH = sheet.getHeight();      // original frame height
