@@ -6,6 +6,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class GamePanel extends JPanel implements Runnable {
+    Settings settings;
     // Game state management
     private GameStateManager gsm;
 
@@ -116,7 +117,7 @@ public class GamePanel extends JPanel implements Runnable {
         musicPlayer.stop();
         gsm.setState(GameStateManager.GameState.GAMEPLAY) ;
         hasPlayedMenuMusic = false;
-
+        Settings.levelchecker();
         if (!musicPlayer.isMuted()) {
             musicPlayer.playRandomFromFolder("res/music/bgm");
         }
