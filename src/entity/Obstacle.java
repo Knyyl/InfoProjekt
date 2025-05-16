@@ -31,7 +31,7 @@ public class Obstacle extends Entity {
         this.gpm = gpm;
         setDefaultValues();
 
-        // ——— Sprite loading & pre‑scaling ———
+        //Sprite loading & pre‑scaling
         try {
             BufferedImage sheet = null;
             if(settings.level == 1){
