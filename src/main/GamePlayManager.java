@@ -2,6 +2,7 @@ package main;
 import entity.Obstacle;
 import entity.Player;
 import entity.AirO;
+import entity.Coin;
 
 import java.awt.*;
 
@@ -9,6 +10,8 @@ public class GamePlayManager {
     public Player player;
     private Obstacle obstacle, obstacle2;
     private AirO airo, airo2;
+
+    private Coin coin;
     private boolean playerDied;
     private long startTime;
     private int score = 0;
@@ -32,6 +35,7 @@ public class GamePlayManager {
         obstacle2 = new Obstacle(gp, this);
         airo = new AirO(gp);
         airo2 = new AirO(gp);
+        coin = new Coin (gp, this);
         playerDied = false;
         score = 0;
         startTime = System.nanoTime();
@@ -45,6 +49,7 @@ public class GamePlayManager {
             obstacle2.update();
             airo.update();
             airo2.update();
+            coin.update();
             checkCollisions();
             updateScore(elapsedTime);
 
@@ -60,6 +65,7 @@ public class GamePlayManager {
         obstacle2.draw(g2);
         airo.draw(g2);
         airo2.draw(g2);
+        coin.draw(g2);
 
         if (Settings.showHitboxes) {
             g2.setColor(Color.RED);
@@ -68,6 +74,7 @@ public class GamePlayManager {
             g2.draw(obstacle2.getHitbox());
             g2.draw(airo.getHitbox());
             g2.draw(airo2.getHitbox());
+            g2.draw(coin.getHitbox());
         }
     }
 
@@ -84,6 +91,7 @@ public class GamePlayManager {
             gsm.setState(GameStateManager.GameState.GAME_OVER);
             gp.setRunning(false);
         }
+
     }
     private void updateScore(double elapsedTime) {
         score = (int) ((elapsedTime / 10) * Obstacle.speed);
