@@ -2,55 +2,44 @@ package entity;
 
 import main.GamePanel;
 import main.GamePlayManager;
-import main.Settings;
 
-import java.util.Random;
 import java.awt.*;
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import javax.imageio.ImageIO;
+import java.io.*;
+import java.util.Random;
 
-public class Obstacle extends Entity {
-    Settings settings;
-    BufferedImage[] frames;
+public class Coin extends Entity {
     int frameIndex = 0;
+    int animationSpeed = 5; // Lower = faster animation
     int animationCounter = 0;
-    int animationSpeed = 10; // Lower = faster animation
-
-    public static double speed;
+    BufferedImage[] frames;
     GamePanel gp;
     GamePlayManager gpm;
+    BufferedImage image;
     Random rand = new Random();
+    public static int coinValue = 1;
+    public static double speed = 6;
 
-    public int width;
-    public int height;
+    public int width = 32;
+    public int height = 32;
 
-    public Obstacle(GamePanel gp, GamePlayManager gpm) {
+    public Coin(GamePanel gp, GamePlayManager gpm) {
         this.gp = gp;
         this.gpm = gpm;
         setDefaultValues();
-
-        //Sprite loading & pre‑scaling
         try {
-            BufferedImage sheet = null;
-            if(settings.level == 1){
-                sheet = ImageIO.read(new File("res/sprites/ACAB.png"));
-            }
-            else if(settings.level == 2){
-                sheet = ImageIO.read(new File("res/sprites/lambo.png"));
-            }
-
-            int origW = sheet.getWidth()  / 4;   // original frame width
+            BufferedImage sheet = ImageIO.read(new File("res/sprites/coin.png"));
+            int origW = sheet.getWidth() / 15;   // original frame width / frames amount
             int origH = sheet.getHeight();      // original frame height
-            int scaleFactor = 4;                // Bigger = bigger sprite
+            int scaleFactor = 2;                // Bigger = bigger sprite
 
             // update your obstacle dimensions
-            width  = origW * scaleFactor;
+            width = origW * scaleFactor;
             height = origH * scaleFactor;
 
-            frames = new BufferedImage[4];
-            for (int i = 0; i < 4; i++) {
+            frames = new BufferedImage[15];
+            for (int i = 0; i < 15; i++) {
                 // extract the small frame
                 BufferedImage orig = sheet.getSubimage(i * origW, 0, origW, origH);
 
@@ -60,7 +49,7 @@ public class Obstacle extends Entity {
                 // use nearest‑neighbor to keep pixels sharp
                 g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
                         RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-                g.drawImage(orig, 0, 0, width, height, null);
+                g.drawImage(orig, 0, 0, width, height , null);
                 g.dispose();
 
                 frames[i] = scaled;
@@ -72,25 +61,24 @@ public class Obstacle extends Entity {
 
     public void setDefaultValues() {
         x = rand.nextInt(1930) + 2000;
-        y = gpm.player.y - 130;
-
-        speed = 6;
+        y = gpm.player.y - 100;
     }
 
-    public void update() {
-        speed = speed * 1.0001;
-        speed = Math.min(speed, 25.0); //Stops speed at high speed, to keep game playable
-        x = (int) (x - speed);
 
-        if (x <= -100) {
-            x = rand.nextInt(1920) + 2000;
+    public void update() {
+        x = (int) (x - speed);
+        if (x < -width) {
+            setDefaultValues(); // Respawn if off-screen
         }
         animationCounter++;
         if (animationCounter >= animationSpeed) {
             frameIndex = (frameIndex + 1) % frames.length;
             animationCounter = 0;
         }
-
+        if (getHitbox().intersects(gpm.player.getHitbox())) {
+            collectCoin();
+            setDefaultValues(); // Respawn
+        }
     }
 
     public void draw(Graphics2D g2) {
@@ -104,15 +92,31 @@ public class Obstacle extends Entity {
     }
 
     public Rectangle getHitbox() {
-        // 80% of full width and height
-        int scaledWidth = (int)(width * 0.7);
-        int scaledHeight = (int)(height * 0.7 * 0.5); //
-
-        // Center the hitbox horizontally and place it near the bottom vertically
-        int hitboxX = x + (width - scaledWidth) / 2;
-        int hitboxY = y + (height - scaledHeight); // Bottom-aligned
-
-        return new Rectangle(hitboxX, hitboxY, scaledWidth, scaledHeight);
+        return new Rectangle(x , y, width, height);
     }
 
+    public void collectCoin() {
+        int currentCoins = getWalletCoins();
+        saveWalletCoins(currentCoins + coinValue);
+    }
+
+    public static int getWalletCoins() {
+        File wallet = new File("wallet.txt");
+        if (!wallet.exists()) return 0;
+
+        try (BufferedReader br = new BufferedReader(new FileReader(wallet))) {
+            return Integer.parseInt(br.readLine().trim());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    public static void saveWalletCoins(int coins) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("wallet.txt"))) {
+            bw.write(String.valueOf(coins));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

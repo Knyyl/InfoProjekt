@@ -12,15 +12,18 @@ import java.io.IOException;
 public class Movedaback extends Entity {
     int backgroundWidth = 3840;
     BufferedImage backgroundImage;
+    BufferedImage bridgeImage;
     public static double speed;
     GamePanel gp;
     GamePlayManager gpm;
 
-    public int width;
-    public int height;
 
-    // Starting position of background
+    // Wallpaper + bridge effect variables
     private int x2;
+    private int b2;
+    private int x;
+    private int b;
+    private int bspeed;
 
     public Movedaback(GamePanel gp, GamePlayManager gpm) {
         this.gp = gp;
@@ -30,8 +33,7 @@ public class Movedaback extends Entity {
         // ——— Load the background image ———
         try {
             backgroundImage = ImageIO.read(new File("res/mainmenuwp/WPlvlonebb.png"));
-            width = backgroundImage.getWidth();
-            height = backgroundImage.getHeight();
+            bridgeImage = ImageIO.read(new File("res/mainmenuwp/bridge.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -39,18 +41,33 @@ public class Movedaback extends Entity {
 
     public void setDefaultValues() {
         x = 0;
-        x2 = backgroundWidth; // Not hardcoded to 1920 anymore
+        x2 = backgroundWidth;
+
+        b = 0;
+        b2 = backgroundWidth;
+
         y = 0;
         speed = 6;
+        bspeed = (int) (speed / 2);
     }
 
 
+
     public void update() {
-        // Move both images left
+        // Move all images left
         x -= speed;
         x2 -= speed;
+        b -= bspeed;
+        b2 -= bspeed;
 
         // Reset positions when one image fully scrolls out of view
+        if (b <= -backgroundWidth) {
+            b = b2 + backgroundWidth;
+        }
+
+        if (b2 <= -backgroundWidth) {
+            b2 = b + backgroundWidth;
+        }
         if (x <= -backgroundWidth) {
             x = x2 + backgroundWidth;
         }
@@ -65,5 +82,7 @@ public class Movedaback extends Entity {
         // Draw both backgrounds to create the scrolling effect
         g2.drawImage(backgroundImage, x, y, null);
         g2.drawImage(backgroundImage, x2, y, null);
+        g2.drawImage(bridgeImage, b, y - 100, null);
+        g2.drawImage(bridgeImage, b2, y - 100, null);
     }
 }

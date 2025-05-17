@@ -15,8 +15,8 @@ public class Player extends Entity {
     int animationCounter = 0;
     int animationSpeed = 10; // Lower = faster animation
     public static double speed;
-    private final GamePanel gp;  // Made private
-    public final KeyHandler keyH;  // Made private
+    private final GamePanel gp;
+    public final KeyHandler keyH;
 
     public int width;
     public int height;
@@ -24,7 +24,7 @@ public class Player extends Entity {
     // Jumping and physics variables
     private double velocityY = 0;
     private double gravity = 1.5;
-    private final double jumpForce = -25;
+    private final double jumpForce = -30;
     private final int groundY = 540;
     private boolean onGround = true;
     private boolean jumpsprite;
@@ -146,6 +146,6 @@ public class Player extends Entity {
     }
 
     public Rectangle getHitbox() {
-        return new Rectangle(x +20, y, width /2, height);
+        return new Rectangle(x +35, y+10, width /3, height - (height /3));
     }
 }

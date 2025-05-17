@@ -81,8 +81,8 @@ public class AirO extends Entity {
         speed = Math.min(speed, 25.0); //Stops speed at certain speed, to keep game playable
         x = (int) (x - speed);
 
-        if (x <= 0) {
-            x = rand.nextInt(1970) + 1000;
+        if (x <= -100) {
+            x = rand.nextInt(1970) + 2000;
         }
         animationCounter++;
         if (animationCounter >= animationSpeed) {
