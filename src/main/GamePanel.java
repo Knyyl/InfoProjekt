@@ -98,8 +98,13 @@ public class GamePanel extends JPanel implements Runnable {
                 startGame();
                 break;
             case "settings":
-                SwingUtilities.invokeLater(() -> new SettingsMenu().setVisible(true));
+                SwingUtilities.invokeLater(() -> {
+                    JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+                    SettingsMenu settingsMenu = new SettingsMenu(parentFrame);
+                    settingsMenu.setVisible(true); // This will block until closed
+                });
                 break;
+
             case "mute":
                 toggleMute();
                 uiManager.toggleMuteState();

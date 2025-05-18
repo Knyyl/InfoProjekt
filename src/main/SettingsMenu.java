@@ -2,17 +2,16 @@ package main;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.io.*;
 
-public class SettingsMenu extends JFrame {
+public class SettingsMenu extends JDialog {
     private int coins;
 
-    public SettingsMenu() {
-        setTitle("Settings");
+    public SettingsMenu(JFrame parent) {
+        super(parent, "Settings", true); // Modal dialog
         setSize(350, 200);
         setLayout(new FlowLayout());
-        setLocationRelativeTo(null);
+        setLocationRelativeTo(parent);
 
         coins = readCoins();
 

@@ -83,10 +83,10 @@ public class Player extends Entity {
 
     public void update() {
         if (keyH == null) return;  // Safety check
-        if(keyH.downPressed){
+        if(keyH.downPressed) {
             gravity += 10;
         }
-        if(keyH.downPressed = false){
+        else{
             gravity = 1.5;
         }
 
