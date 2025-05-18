@@ -1,5 +1,5 @@
 package main;
-public class GameStateManager {
+public class GameStateManager  {
 
 
     public enum GameState {
@@ -19,6 +19,7 @@ public class GameStateManager {
     }
 
     public boolean is(GameState state) {
+
         return this.currentState == state;
     }
 }
