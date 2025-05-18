@@ -47,8 +47,8 @@ public class Movedaback extends Entity {
         b2 = backgroundWidth;
 
         y = 0;
-        speed = 6;
-        bspeed = (int) (speed / 2);
+        speed = 3;
+        bspeed = (int) (speed * 2);
     }
 
 
