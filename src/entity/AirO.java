@@ -32,9 +32,9 @@ public class AirO extends Entity {
         try {
             BufferedImage sheet = null;
             if (settings.level == 1) {
-                sheet = ImageIO.read(new File("res/sprites/drone.png"));
+                sheet = ImageIO.read(new File("res/sprites/dronepolice.png"));
             } else if (settings.level == 2) {
-                sheet = ImageIO.read(new File("res/sprites/lvl2done.png"));
+                sheet = ImageIO.read(new File("res/sprites/drone.png"));
             }
 
             int origW = sheet.getWidth() / 4;   // original frame width
