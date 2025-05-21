@@ -13,7 +13,10 @@ public  class UIManager {
 
     private MainMenu mainMenu;
     private MenuButton restartButton;
+    private MenuButton backButton;
     private BufferedImage restartIcon;
+    private BufferedImage backIcon;
+
     private int screenWidth, screenHeight;
 
     public UIManager(int screenWidth, int screenHeight) {
@@ -44,9 +47,30 @@ public  class UIManager {
             );
             restartButton.text = "Restart";
         }
+        try {
+            backIcon = ImageIO.read(new File("res/menubuttons/back.png"));
+            backButton = new MenuButton(
+                    screenWidth / 2 + 32,
+                    screenHeight / 2 + 50,
+                    64, 64,
+                    "restart",
+                   backIcon
+            );
+        } catch (IOException e) {
+            System.err.println("Failed to load back icon: " + e.getMessage());
+            backButton = new MenuButton(
+                    screenWidth / 2 + 100,
+                    screenHeight / 2 + 50,
+                    200, 50,
+                    "restart",
+                    null
+            );
+            backButton.text = "back to main menu";
+        }
     }
 
     public void drawMainMenu(Graphics2D g2) {
+
         mainMenu.draw(g2);
     }
 
@@ -59,6 +83,9 @@ public  class UIManager {
         restartButton.bounds.x = screenWidth / 2 - 32;
         restartButton.bounds.y = screenHeight / 2 + 50;
         restartButton.draw(g2);
+        backButton.bounds.x = screenWidth / 2 + 32;
+        backButton.bounds.y = screenHeight / 2 + 50;
+        backButton.draw(g2);
     }
 
     public void handleMainMenuClick(int x, int y, Consumer<String> menuActionHandler) {
@@ -71,11 +98,17 @@ public  class UIManager {
     }
 
     public boolean restartClicked(int x, int y) {
+
         return restartButton.isClicked(x, y);
     }
 
     public void toggleMuteState() {
+
         mainMenu.toggleMuteState();
+    }
+
+    public boolean backtoMenuclicked(int x, int y) {
+        return backButton.isClicked(x, y);
     }
 }
 
