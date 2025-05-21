@@ -44,6 +44,7 @@ public class MenuButton {
     }
 
     public boolean isClicked(int mx, int my) {
+
         return bounds.contains(mx, my);
     }
 }

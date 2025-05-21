@@ -83,6 +83,9 @@ public class GamePanel extends JPanel implements Runnable {
                 if (uiManager.restartClicked(x, y )) {
                     restartGame();
                 }
+                else if (uiManager.backtoMenuclicked(x, y)) {
+                        returnToMainMenu();
+                }
                 break;
         }
     }
@@ -172,6 +175,7 @@ public class GamePanel extends JPanel implements Runnable {
         gameThread.start();
     }
     public void setRunning(boolean running) {
+
         this.running = running;
     }
 
@@ -294,9 +298,15 @@ public class GamePanel extends JPanel implements Runnable {
         // Ensure focus is on the panel
         this.requestFocusInWindow();
     }
+    public void returnToMainMenu() {
+        gsm.setState(GameStateManager.GameState.MAIN_MENU);
+        playMenuMusic();
+        this.requestFocusInWindow();
+    }
 
 
     private void resetGameObjects() {
+
         gpm = new GamePlayManager(this, keyH, gsm );
     }
 }
