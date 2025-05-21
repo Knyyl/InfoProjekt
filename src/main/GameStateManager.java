@@ -23,6 +23,7 @@ public class GameStateManager {
     }
 
     public boolean is(GameState state) {
+
         return this.currentState == state;
     }
 }

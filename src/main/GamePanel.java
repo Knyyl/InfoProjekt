@@ -238,7 +238,7 @@ public class GamePanel extends JPanel implements Runnable {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
-
+        
         switch (gsm.getState()) {
             case MAIN_MENU:
                 renderMainMenu(g2);
@@ -299,9 +299,13 @@ public class GamePanel extends JPanel implements Runnable {
         this.requestFocusInWindow();
     }
     public void returnToMainMenu() {
+        stopExistingThreads(); // Falls GameThread noch aktiv ist
         gsm.setState(GameStateManager.GameState.MAIN_MENU);
         playMenuMusic();
         this.requestFocusInWindow();
+        running = true;
+        startMenuListenerThread(); //
+        repaint();
     }
 
 
