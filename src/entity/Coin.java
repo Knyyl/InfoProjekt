@@ -111,7 +111,6 @@ public class Coin extends Entity {
             return 0;
         }
     }
-
     public static void saveWalletCoins(int coins) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter("wallet.txt"))) {
             bw.write(String.valueOf(coins));

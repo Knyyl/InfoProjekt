@@ -7,7 +7,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+
 public class MainMenu {
+    GamePlayManager gpm;
     BufferedImage background;
     private final int screenWidth, screenHeight;
     public ArrayList<MenuButton> buttons = new ArrayList<>();
@@ -67,6 +69,12 @@ public class MainMenu {
         if (background != null) {
             g2.drawImage(background, 0, 0, null);
         }
+        int baseFontSize = 20;
+        int scaleFactor = 3;
+        Font scaledFont = new Font("Arial", Font.PLAIN, (int)(baseFontSize * scaleFactor));
+        g2.setFont(scaledFont);
+        g2.setColor(Color.WHITE);
+        g2.drawString("Highscore: " + GamePlayManager.getHighscore(), 100, 100);
 
         // Draw buttons with icons
         for (MenuButton button : buttons) {
