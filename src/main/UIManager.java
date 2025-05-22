@@ -82,8 +82,8 @@ public  class UIManager {
         restartButton.bounds.x = screenWidth / 2 - 32;
         restartButton.bounds.y = screenHeight / 2 + 50;
         restartButton.draw(g2);
-        homeButton.bounds.x = screenWidth / 2 + 32;
-        homeButton.bounds.y = screenHeight / 2 + 50;
+        homeButton.bounds.x = screenWidth - 200;
+        homeButton.bounds.y = screenHeight - 200;
         homeButton.draw(g2);
     }
 
