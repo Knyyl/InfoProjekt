@@ -32,8 +32,13 @@ public class MainMenu {
         int buttonSpacing = 100;
 
         try {
+            if (Settings.level2) {
+                background = ImageIO.read(new File("res/mainmenuwp/lvl2wp.png"));
+            }
+            else{
+                background = ImageIO.read(new File("res/mainmenuwp/BackgroundLevel1.png"));
+            }
             // Load images
-            background = ImageIO.read(new File("res/mainmenuwp/WPACABAK.png"));
             playIcon = ImageIO.read(new File("res/menubuttons/play.png"));
             settingsIcon = ImageIO.read(new File("res/menubuttons/settings.png"));
             muteIcon = ImageIO.read(new File("res/menubuttons/notmute.png"));
@@ -66,6 +71,16 @@ public class MainMenu {
 
     public void draw(Graphics2D g2) {
         // Draw background image
+        try{
+            if (Settings.level2) {
+                background = ImageIO.read(new File("res/mainmenuwp/lvl2wp.png"));
+            }
+            else{
+                background = ImageIO.read(new File("res/mainmenuwp/BackgroundLevel1.png"));
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         if (background != null) {
             g2.drawImage(background, 0, 0, null);
         }
@@ -81,4 +96,5 @@ public class MainMenu {
             button.draw(g2);
         }
     }
+
 }

@@ -46,17 +46,18 @@ public class GamePlayManager {
 
     public void update() {
 
-            double elapsedTime = (System.nanoTime() - startTime) / 1_000_000_000.0;
-            wallpaper.update();
-            player.update();
-            obstacle.update();
-            obstacle2.update();
-            airo.update();
-            airo2.update();
-            coin.update();
-            checkCollisions();
-            updateScore(elapsedTime);
-        }
+        double elapsedTime = (System.nanoTime() - startTime) / 1_000_000_000.0;
+        wallpaper.update();
+        player.update();
+        obstacle.update();
+        obstacle2.update();
+        airo.update();
+        airo2.update();
+        coin.update();
+        checkCollisions();
+        updateScore(elapsedTime);
+    }
+
 
     public void draw(Graphics2D g2) {
         if (background != null) {

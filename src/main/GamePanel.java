@@ -253,6 +253,7 @@ public class GamePanel extends JPanel implements Runnable {
 
         switch (gsm.getState()) {
             case MAIN_MENU:
+                Settings.levelchecker();
                 renderMainMenu(g2);
                 break;
             case GAMEPLAY:
