@@ -61,7 +61,7 @@ public class Coin extends Entity {
 
     public void setDefaultValues() {
         x = rand.nextInt(1930) + 2000;
-        y = gpm.player.y - 100;
+        y = gpm.player.y - 70;
     }
 
 

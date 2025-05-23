@@ -51,13 +51,14 @@ public class GamePlayManager {
         player.update();
         obstacle.update();
         obstacle2.update();
+
         airo.update();
         airo2.update();
         coin.update();
         checkCollisions();
         updateScore(elapsedTime);
-    }
 
+    }
 
     public void draw(Graphics2D g2) {
         if (background != null) {

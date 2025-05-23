@@ -83,7 +83,7 @@ public class Obstacle extends Entity {
         x = (int) (x - speed);
 
         if (x <= -100) {
-            x = rand.nextInt(1920) + 2000;
+            x = rand.nextInt(1920) + 3000;
         }
         animationCounter++;
         if (animationCounter >= animationSpeed) {
@@ -114,5 +114,6 @@ public class Obstacle extends Entity {
 
         return new Rectangle(hitboxX, hitboxY, scaledWidth, scaledHeight);
     }
+    
 
 }
