@@ -6,7 +6,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class GamePanel extends JPanel implements Runnable {
-    Settings settings;
+
     // Game state management
     private GameStateManager gsm;
 
@@ -180,6 +180,7 @@ public class GamePanel extends JPanel implements Runnable {
         gameThread.start();
     }
     public void setRunning(boolean running) {
+
         this.running = running;
     }
 
@@ -274,6 +275,7 @@ public class GamePanel extends JPanel implements Runnable {
 
 
     private void renderGameOver(Graphics2D g2) {
+
         uiManager.drawGameOver(g2, gpm.getScore());
     }
 

@@ -92,6 +92,7 @@ public class Coin extends Entity {
     }
 
     public Rectangle getHitbox() {
+
         return new Rectangle(x , y, width, height);
     }
 

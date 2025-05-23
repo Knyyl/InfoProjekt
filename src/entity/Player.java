@@ -132,6 +132,7 @@ public class Player extends Entity {
     }
 
     private boolean isJumpPressed() {
+
         return keyH.upPressed;
     }
 

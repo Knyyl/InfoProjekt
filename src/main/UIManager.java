@@ -107,6 +107,7 @@ public  class UIManager {
     }
 
     public boolean homeButtonclicked(int x, int y) {
+
         return homeButton.isClicked(x, y);
     }
 }

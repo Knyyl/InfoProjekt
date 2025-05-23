@@ -11,10 +11,12 @@ public class GameStateManager  {
 
 
     public  GameState getState() {
+
         return currentState;
     }
 
     public void setState(GameState state) {
+
         this.currentState = state;
     }
 
