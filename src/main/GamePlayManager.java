@@ -7,8 +7,7 @@ import entity.AirO;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
 public class GamePlayManager {
     private Movedaback wallpaper;
@@ -47,17 +46,19 @@ public class GamePlayManager {
 
     public void update() {
 
-            double elapsedTime = (System.nanoTime() - startTime) / 1_000_000_000.0;
-            wallpaper.update();
-            player.update();
-            obstacle.update();
-            obstacle2.update();
-            airo.update();
-            airo2.update();
-            coin.update();
-            checkCollisions();
-            updateScore(elapsedTime);
-        }
+        double elapsedTime = (System.nanoTime() - startTime) / 1_000_000_000.0;
+        wallpaper.update();
+        player.update();
+        obstacle.update();
+        obstacle2.update();
+
+        airo.update();
+        airo2.update();
+        coin.update();
+        checkCollisions();
+        updateScore(elapsedTime);
+
+    }
 
     public void draw(Graphics2D g2) {
         if (background != null) {
@@ -86,7 +87,28 @@ public class GamePlayManager {
         }
     }
 
+    public void updateHighscore(){
+        int currentscore = getScore();
+        saveHighScore(currentscore);
+    }
+    public static int getHighscore() {
+        File highscore = new File("highscore.txt");
+        if (!highscore.exists()) return 0;
 
+        try (BufferedReader br = new BufferedReader(new FileReader(highscore))) {
+            return Integer.parseInt(br.readLine().trim());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+    public static void saveHighScore(int score) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("highscore.txt"))) {
+            bw.write(String.valueOf(score));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     private void checkCollisions() {
         if(!Settings.collisionEnabled) return;
@@ -98,6 +120,10 @@ public class GamePlayManager {
             playerDied = true;
             gsm.setState(GameStateManager.GameState.GAME_OVER);
             gp.setRunning(false);
+            if(getHighscore() < score){
+                updateHighscore();
+            }
+
         }
     }
     private void updateScore(double elapsedTime) {

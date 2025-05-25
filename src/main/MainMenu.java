@@ -7,7 +7,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+
 public class MainMenu {
+    GamePlayManager gpm;
     BufferedImage background;
     private final int screenWidth, screenHeight;
     public ArrayList<MenuButton> buttons = new ArrayList<>();
@@ -30,8 +32,13 @@ public class MainMenu {
         int buttonSpacing = 100;
 
         try {
+            if (Settings.level2) {
+                background = ImageIO.read(new File("res/mainmenuwp/lvl2wp.png"));
+            }
+            else{
+                background = ImageIO.read(new File("res/mainmenuwp/BackgroundLevel1.png"));
+            }
             // Load images
-            background = ImageIO.read(new File("res/mainmenuwp/WPACABAK.png"));
             playIcon = ImageIO.read(new File("res/menubuttons/play.png"));
             settingsIcon = ImageIO.read(new File("res/menubuttons/settings.png"));
             muteIcon = ImageIO.read(new File("res/menubuttons/notmute.png"));
@@ -64,13 +71,30 @@ public class MainMenu {
 
     public void draw(Graphics2D g2) {
         // Draw background image
+        try{
+            if (Settings.level2) {
+                background = ImageIO.read(new File("res/mainmenuwp/lvl2wp.png"));
+            }
+            else{
+                background = ImageIO.read(new File("res/mainmenuwp/BackgroundLevel1.png"));
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         if (background != null) {
             g2.drawImage(background, 0, 0, null);
         }
+        int baseFontSize = 20;
+        int scaleFactor = 3;
+        Font scaledFont = new Font("Arial", Font.PLAIN, (int)(baseFontSize * scaleFactor));
+        g2.setFont(scaledFont);
+        g2.setColor(Color.WHITE);
+        g2.drawString("Highscore: " + GamePlayManager.getHighscore(), 100, 100);
 
         // Draw buttons with icons
         for (MenuButton button : buttons) {
             button.draw(g2);
         }
     }
+
 }

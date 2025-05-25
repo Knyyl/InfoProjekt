@@ -6,7 +6,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class GamePanel extends JPanel implements Runnable {
-    Settings settings;
+
     // Game state management
     private GameStateManager gsm;
 
@@ -83,6 +83,9 @@ public class GamePanel extends JPanel implements Runnable {
             case GAME_OVER:
                 if (uiManager.restartClicked(x, y )) {
                     restartGame();
+                }
+                if(uiManager.homeButtonclicked(x, y)){
+                    returnToMainMenu();
                 }
                 break;
         }
@@ -177,6 +180,7 @@ public class GamePanel extends JPanel implements Runnable {
         gameThread.start();
     }
     public void setRunning(boolean running) {
+
         this.running = running;
     }
 
@@ -193,6 +197,14 @@ public class GamePanel extends JPanel implements Runnable {
                 Thread.currentThread().interrupt();
             }
         }
+    }
+    public void returnToMainMenu(){
+        stopExistingThreads();
+        gsm.setState(GameStateManager.GameState.MAIN_MENU);
+        this.requestFocusInWindow();
+        running = true;
+        startMenuListenerThread();
+        repaint();
     }
 
     @Override
@@ -242,6 +254,7 @@ public class GamePanel extends JPanel implements Runnable {
 
         switch (gsm.getState()) {
             case MAIN_MENU:
+                Settings.levelchecker();
                 renderMainMenu(g2);
                 break;
             case GAMEPLAY:
@@ -262,6 +275,7 @@ public class GamePanel extends JPanel implements Runnable {
 
 
     private void renderGameOver(Graphics2D g2) {
+
         uiManager.drawGameOver(g2, gpm.getScore());
     }
 

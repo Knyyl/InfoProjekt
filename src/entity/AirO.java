@@ -41,7 +41,7 @@ public class AirO extends Entity {
             int origH = sheet.getHeight();      // original frame height
             int scaleFactor = 1;                // Bigger = bigger sprite
 
-            // update your obstacle dimensions
+            // update  obstacle dimensions
             width = origW * scaleFactor;
             height = origH * scaleFactor;
 
@@ -67,8 +67,6 @@ public class AirO extends Entity {
 
     }
 
-    public static void resetSpeeds() {
-    }
 
     public void setDefaultValues() {
         x = rand.nextInt(1930) + 10000;
@@ -82,7 +80,7 @@ public class AirO extends Entity {
         x = (int) (x - speed);
 
         if (x <= -100) {
-            x = rand.nextInt(1970) + 2000;
+            x = rand.nextInt(1970) + 3000;
         }
         animationCounter++;
         if (animationCounter >= animationSpeed) {
@@ -103,6 +101,7 @@ public class AirO extends Entity {
     }
 
     public Rectangle getHitbox() {
+
         return new Rectangle(x + 80, y, width / 8, height /3);
     }
 }

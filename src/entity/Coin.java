@@ -61,7 +61,7 @@ public class Coin extends Entity {
 
     public void setDefaultValues() {
         x = rand.nextInt(1930) + 2000;
-        y = gpm.player.y - 100;
+        y = gpm.player.y - 70;
     }
 
 
@@ -92,6 +92,7 @@ public class Coin extends Entity {
     }
 
     public Rectangle getHitbox() {
+
         return new Rectangle(x , y, width, height);
     }
 
@@ -111,7 +112,6 @@ public class Coin extends Entity {
             return 0;
         }
     }
-
     public static void saveWalletCoins(int coins) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter("wallet.txt"))) {
             bw.write(String.valueOf(coins));
