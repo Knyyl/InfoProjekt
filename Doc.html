@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Naoi Method Reference</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #121212;
+      color: #e0e0e0;
+      margin: 0;
+      padding: 2rem;
+    }
+    h1, h2 {
+      color: #fdd835;
+    }
+    .class {
+      margin-bottom: 2rem;
+    }
+    .class h2 {
+      cursor: pointer;
+      padding: 0.5rem;
+      background: #1e1e1e;
+      border-left: 4px solid #fdd835;
+    }
+    .method {
+      cursor: pointer;
+      padding: 0.5rem;
+      margin: 0.3rem 0;
+      background: #1e1e1e;
+      border-left: 4px solid #4caf50;
+    }
+    .method:hover, .class h2:hover {
+      background-color: #333;
+    }
+    .details, .methods {
+      display: none;
+      margin-top: 0.5rem;
+      padding: 0.5rem 1rem;
+      background-color: #222;
+    }
+    .method.active + .details {
+      display: block;
+    }
+    .class.active .methods {
+      display: block;
+    }
+    pre {
+      background-color: #111;
+      padding: 1rem;
+      overflow-x: auto;
+      white-space: pre-wrap;
+    }
+    .code-title {
+      color: #81c784;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Naoi Game Code Documentation</h1>
+
+  <div class="class">
+    <h2>Class: AirO</h2>
+    <div class="methods">
+      <div class="method">AirO(GamePanel)</div>
+      <div class="details">
+        Initializes an airborne obstacle with animation frames and random positioning.
+        <div class="code-title">Key snippet:</div>
+        <pre>
+if (settings.level == 1) {
+    sheet = ImageIO.read(new File("res/sprites/dronepolice.png"));
+} else if (settings.level == 2) {
+    sheet = ImageIO.read(new File("res/sprites/drone.png"));
+}</pre>
+        Loads different sprites based on game level.
+      </div>
+      <div class="method">update()</div>
+      <div class="details">
+        Moves the obstacle leftwards with increasing speed and handles animation.
+        <div class="code-title">Speed logic:</div>
+        <pre>
+speed = speed * 1.0001;
+speed = Math.min(speed, 25.0);</pre>
+        Gradually increases speed but caps at 25.
+      </div>
+      <div class="method">draw(Graphics2D)</div>
+      <div class="details">
+        Renders the current animation frame or a fallback white rectangle.
+      </div>
+      <div class="method">getHitbox()</div>
+      <div class="details">
+        Returns a smaller collision rectangle than the visual sprite.
+      </div>
+    </div>
+  </div>
+
+  <div class="class">
+    <h2>Class: Obstacle</h2>
+    <div class="methods">
+      <div class="method">Obstacle(GamePanel, GamePlayManager)</div>
+      <div class="details">
+        Initializes ground obstacles with level-specific sprites and scaling.
+        <div class="code-title">Scaling logic:</div>
+        <pre>
+int scaleFactor = 4;
+width = origW * scaleFactor;
+height = origH * scaleFactor;</pre>
+        Sprites are scaled up 4x from their original size.
+      </div>
+      <div class="method">update()</div>
+      <div class="details">
+        Moves obstacle left with increasing speed and handles animation.
+      </div>
+      <div class="method">draw(Graphics2D)</div>
+      <div class="details">
+        Draws the current animation frame or fallback white rectangle.
+      </div>
+      <div class="method">getHitbox()</div>
+      <div class="details">
+        Returns a collision rectangle that's 70% width and 35% height of visual sprite.
+      </div>
+    </div>
+  </div>
+
+  <div class="class">
+    <h2>Class: KeyHandler</h2>
+    <div class="methods">
+      <div class="method">keyPressed(KeyEvent)</div>
+      <div class="details">
+        Sets flags when WASD or Enter keys are pressed.
+      </div>
+      <div class="method">keyReleased(KeyEvent)</div>
+      <div class="details">
+        Clears flags when WASD or Enter keys are released.
+      </div>
+    </div>
+  </div>
+
+  <div class="class">
+    <h2>Class: MenuButton</h2>
+    <div class="methods">
+      <div class="method">MenuButton(int, int, int, int, String, Image)</div>
+      <div class="details">
+        Creates a clickable button with bounds and optional icon.
+      </div>
+      <div class="method">draw(Graphics2D)</div>
+      <div class="details">
+        Renders the button with icon or text fallback with anti-aliasing.
+      </div>
+      <div class="method">isClicked(int, int)</div>
+      <div class="details">
+        Checks if coordinates are within button bounds.
+      </div>
+    </div>
+  </div>
+
+  <div class="class">
+    <h2>Class: MainMenu</h2>
+    <div class="methods">
+      <div class="method">MainMenu(int, int)</div>
+      <div class="details">
+        Initializes menu with background and buttons (play, settings, mute, quit).
+      </div>
+      <div class="method">toggleMuteState()</div>
+      <div class="details">
+        Switches between muted/unmuted icons for the mute button.
+      </div>
+      <div class="method">draw(Graphics2D)</div>
+      <div class="details">
+        Renders background and all menu buttons.
+      </div>
+    </div>
+  </div>
+
+  <div class="class">
+    <h2>Class: Main</h2>
+    <div class="methods">
+      <div class="method">main(String[])</div>
+      <div class="details">
+        Entry point that creates undecorated fullscreen window with game panel.
+        <div class="code-title">Fullscreen setup:</div>
+        <pre>
+GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+if (gd.isFullScreenSupported()) {
+    gd.setFullScreenWindow(window);
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="class">
+    <h2>Class: MusicPlayer</h2>
+    <div class="methods">
+      <div class="method">playRandomFromFolder(String)</div>
+      <div class="details">
+        Plays a random WAV file from specified folder in continuous loop.
+      </div>
+      <div class="method">setMuted(boolean)</div>
+      <div class="details">
+        Toggles mute state and stops playback if muted.
+      </div>
+      <div class="method">stop()</div>
+      <div class="details">
+        Stops current playback and releases resources.
+      </div>
+    </div>
+  </div>
+
+  <div class="class">
+    <h2>Class: Settings</h2>
+    <div class="methods">
+      <div class="method">levelchecker()</div>
+      <div class="details">
+        Updates level based on level1/level2 boolean flags.
+      </div>
+    </div>
+  </div>
+
+  <div class="class">
+    <h2>Class: SettingsMenu</h2>
+    <div class="methods">
+      <div class="method">SettingsMenu(JFrame)</div>
+      <div class="details">
+        Creates settings dialog with collision/hitbox toggles and level purchase.
+      </div>
+      <div class="method">readCoins()</div>
+      <div class="details">
+        Reads coin balance from wallet.txt file.
+      </div>
+      <div class="method">saveCoins(int)</div>
+      <div class="details">
+        Writes new coin balance to wallet.txt.
+      </div>
+    </div>
+  </div>
+
+  <div class="class">
+    <h2>Class: UIManager</h2>
+    <div class="methods">
+      <div class="method">UIManager(int, int)</div>
+      <div class="details">
+        Initializes UI components including main menu and restart button.
+      </div>
+      <div class="method">drawMainMenu(Graphics2D)</div>
+      <div class="details">
+        Delegates to MainMenu's draw method.
+      </div>
+      <div class="method">drawGameOver(Graphics2D, int)</div>
+      <div class="details">
+        Shows game over screen with score and restart button.
+      </div>
+      <div class="method">handleMainMenuClick(int, int, Consumer&lt;String&gt;)</div>
+      <div class="details">
+        Handles menu button clicks and triggers appropriate actions.
+      </div>
+    </div>
+  </div>
+
+  <div class="class">
+    <h2>Class: Player</h2>
+    <div class="methods">
+      <div class="method">Player(GamePanel, KeyHandler)</div>
+      <div class="details">
+        Initializes player with ground and jump spritesheets.
+      </div>
+      <div class="method">update()</div>
+      <div class="details">
+        Handles player physics, jumping, and animation switching.
+        <div class="code-title">Jump physics:</div>
+        <pre>
+if (isJumpPressed() && onGround) {
+    velocityY = jumpForce;
+    onGround = false;
+}</pre>
+      </div>
+      <div class="method">draw(Graphics2D)</div>
+      <div class="details">
+        Draws player sprite based on current state.
+      </div>
+      <div class="method">getHitbox()</div>
+      <div class="details">
+        Returns player's collision box smaller than sprite for precise collisions.
+      </div>
+    </div>
+  </div>
+
+  <!-- Class Diagramm section -->
+  <div class="class">
+    <h2>Class Diagramm</h2>
+    <div class="methods">
+      <div class="method" id="showDiagram">show diagram</div>
+      <div class="details">
+        Opens the class diagram image in a new browser tab.
+      </div>
+    </div>
+  </div>
+
+
+<!-- Projektauswertung integrated as subtopic -->
+<div class="class">
+  <h2>Projektauswertung</h2>
+  <div class="methods">
+    <div class="method">Wer war für was zuständig?</div>
+    <div class="details">
+      Andras: Spiellogik und Code, hat die meisten Sprites gezeichnet bzw. besorgt sowie Animationen gemacht.<br>
+      Kasi: Etwas Code geschrieben bzw. aufgeräumt sowie grafische Implementierungen.<br>
+      Wir haben gearbeitet, wenn Zeit war. Verteilung war nicht unbedingt optimal.
+    </div>
+    <div class="method">Was hat gut/weniger gut geklappt?</div>
+    <div class="details">
+      Die Spiellogik hat gut funktioniert.<br>
+      Schwierigkeiten gab es bei der grafischen Umsetzung.
+    </div>
+    <div class="method">Wie ist eure Arbeit dokumentiert?</div>
+    <div class="details">
+      Die Dokumentation besteht aus Code Kommentaren, diesem HTML Dokument sowie einem Klassendiagram.
+    </div>
+    <div class="method">Welche Hilfestellungen habt ihr genutzt?</div>
+    <div class="details">
+      YouTube Tutorials (<a href="https://youtube.com/playlist?list=PL_QPQmz5C6WUF-pOQDsbsKbaBZqXj4qSq&si=ZQPi95-xIRVo8_Uj" target="_blank">Link</a>),<br>
+      StackOverflow für Java-spezifische Fragen,<br>
+      gelegentlich ChatGPT zur Optimierung und Fehlersuche.
+    </div>
+    <div class="method">Wie schätzt du deinen Beitrag ein?</div>
+    <div class="details">
+      Andras: Ich habe viel zum Projekt beigetragen und dabei mit großem Engagement und Zeitaufwand an der Umsetzung mitgewirkt.<br>
+      Kasi: Ich habe mir viel Mühe gegeben und habe besonders beim Level und Menudesign Zeit und Kraft investiert.
+    </div>
+  </div>
+</div>
+
+
+  <script>
+    // Toggle method details on method click
+    document.querySelectorAll('.method').forEach(methodEl => {
+      methodEl.addEventListener('click', () => {
+        // For "showDiagram" method open new tab
+        if (methodEl.id === 'showDiagram') {
+          window.open('ClassDia.png', '_blank');
+          return;
+        }
+
+        // Toggle active class on method
+        const isActive = methodEl.classList.contains('active');
+        // Close all method details first
+        document.querySelectorAll('.method').forEach(m => m.classList.remove('active'));
+        // Open clicked if not already active
+        if (!isActive) {
+          methodEl.classList.add('active');
+        }
+      });
+    });
+
+    // Toggle entire class methods on class header click
+    document.querySelectorAll('.class > h2').forEach(h2 => {
+      h2.addEventListener('click', () => {
+        h2.parentElement.classList.toggle('active');
+      });
+    });
+  </script>
+</body>
+</html>
