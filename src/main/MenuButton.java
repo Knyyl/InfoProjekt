@@ -9,12 +9,14 @@ public class MenuButton {
     public String text;
     public Image icon;
 
+    //Creates a clickable button with bounds and optional icon.
     public MenuButton(int x, int y, int width, int height, String id, Image icon) {
         this.bounds = new Rectangle(x, y, width, height);
         this.id = id;
         this.icon = icon;
     }
 
+    //Renders the button with icon or text fallback with anti-aliasing.
     public void draw(Graphics2D g2) {
         // Enable anti-aliasing for better quality
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -43,6 +45,7 @@ public class MenuButton {
         }
     }
 
+    //Checks if coordinates are within button bounds.
     public boolean isClicked(int mx, int my) {
 
         return bounds.contains(mx, my);

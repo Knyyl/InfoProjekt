@@ -13,11 +13,12 @@ public class MusicPlayer {
         this.muted = muted;
         if (muted) stop();
     }
-
+    //Toggles mute state and stops playback if muted.
     public boolean isMuted() {
         return muted;
     }
 
+    //Plays a random WAV file from specified folder in continuous loop.
     public void playRandomFromFolder(String folderPath) {
         if (muted) return; // 🔇 Prevent playback if muted
 
@@ -42,7 +43,7 @@ public class MusicPlayer {
             e.printStackTrace();
         }
     }
-
+    //Stops current playback and releases resources.
     public void stop() {
         if (clip != null) {
             if (clip.isRunning()) clip.stop();

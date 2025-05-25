@@ -7,6 +7,8 @@ import java.io.File;
 import java.io.IOException;
 
 public class Main {
+
+    //Entry point that creates undecorated fullscreen window with game panel.
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JFrame window = new JFrame();

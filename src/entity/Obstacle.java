@@ -25,7 +25,7 @@ public class Obstacle extends Entity {
 
     public int width;
     public int height;
-
+    //Initializes ground obstacles with level-specific sprites and scaling.
     public Obstacle(GamePanel gp, GamePlayManager gpm) {
         this.gp = gp;
         this.gpm = gpm;
@@ -76,7 +76,7 @@ public class Obstacle extends Entity {
 
         speed = 6;
     }
-
+    //Moves obstacle left with increasing speed and handles animation.
     public void update() {
         speed = speed * 1.0001;
         speed = Math.min(speed, 25.0); //Stops speed at high speed, to keep game playable
@@ -92,7 +92,7 @@ public class Obstacle extends Entity {
         }
 
     }
-
+    //Draws the current animation frame or fallback white rectangle.
     public void draw(Graphics2D g2) {
         if (frames != null && frames[frameIndex] != null) {
             g2.drawImage(frames[frameIndex], x, y, null);
@@ -102,7 +102,7 @@ public class Obstacle extends Entity {
             g2.fillRect(x, y, width, height);
         }
     }
-
+    //Returns a collision rectangle that's 70% width and 35% height of visual sprite.
     public Rectangle getHitbox() {
         // 80% of full width and height
         int scaledWidth = (int)(width * 0.7);

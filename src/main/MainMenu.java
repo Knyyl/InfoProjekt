@@ -18,6 +18,7 @@ public class MainMenu {
     private BufferedImage playIcon, settingsIcon, muteIcon, unmuteIcon, quitIcon;
     private boolean isMuted = false; // Track mute state
 
+    //Initializes menu with background and buttons (play, settings, mute, quit).
     public MainMenu(int screenWidth, int screenHeight) {
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
@@ -69,6 +70,7 @@ public class MainMenu {
         }
     }
 
+    //Renders background and all menu buttons.
     public void draw(Graphics2D g2) {
         // Draw background image
         try{

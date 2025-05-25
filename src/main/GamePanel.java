@@ -15,15 +15,14 @@ public class GamePanel extends JPanel implements Runnable {
     private Thread gameThread;
     private volatile boolean running = false;
 
-    // UI Components
+    // UI and input
     private UIManager uiManager;
+    private final KeyHandler keyH = new KeyHandler();
 
-    // Game elements
+    // Core game logic
     private GamePlayManager gpm;
-    private KeyHandler keyH = new KeyHandler();
 
-    // Game metrics
-
+    // Music handling
     private final MusicPlayer musicPlayer = new MusicPlayer();
     private boolean hasPlayedMenuMusic = false;
 
@@ -37,11 +36,12 @@ public class GamePanel extends JPanel implements Runnable {
     public final int SCREEN_HEIGHT = TILE_SIZE * MAX_SCREEN_ROW + 24;
     private static final int FPS = 60;
 
+    // Constructor
     public GamePanel() {
-        initializeUI();
-        initializeGame();
-        setupInputHandlers();
-        startMenuSystem();
+        initializeUI();           // Set panel size, background etc.
+        initializeGame();         // Initialize game logic and state
+        setupInputHandlers();     // Register key and mouse listeners
+        startMenuSystem();        // Start main menu and music
     }
 
     private void initializeUI() {
@@ -54,7 +54,7 @@ public class GamePanel extends JPanel implements Runnable {
     private void initializeGame() {
         uiManager = new UIManager(SCREEN_WIDTH, SCREEN_HEIGHT);
         gsm = new GameStateManager();
-        resetGameObjects();
+        resetGameObjects(); // Create initial game state
     }
 
     private void setupInputHandlers() {
@@ -66,8 +66,6 @@ public class GamePanel extends JPanel implements Runnable {
             }
         });
     }
-
-
 
     private void startMenuSystem() {
         playMenuMusic();
@@ -81,33 +79,25 @@ public class GamePanel extends JPanel implements Runnable {
                 uiManager.handleMainMenuClick(x, y, this::handleMenuAction);
                 break;
             case GAME_OVER:
-                if (uiManager.restartClicked(x, y )) {
-                    restartGame();
-                }
-                if(uiManager.homeButtonclicked(x, y)){
-                    returnToMainMenu();
-                }
+                if (uiManager.restartClicked(x, y)) restartGame();
+                if (uiManager.homeButtonclicked(x, y)) returnToMainMenu();
                 break;
         }
     }
 
-
-
+    // Handles main menu button clicks
     private void handleMenuAction(String buttonId) {
         if (buttonId == null) return;
 
         switch (buttonId) {
-            case "play":
-                startGame();
-                break;
+            case "play": startGame(); break;
             case "settings":
                 SwingUtilities.invokeLater(() -> {
                     JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
                     SettingsMenu settingsMenu = new SettingsMenu(parentFrame);
-                    settingsMenu.setVisible(true); // This will block until closed
+                    settingsMenu.setVisible(true);
                 });
                 break;
-
             case "mute":
                 toggleMute();
                 uiManager.toggleMuteState();
@@ -121,18 +111,19 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
+    // Starts the actual gameplay
     private void startGame() {
         musicPlayer.stop();
-        gsm.setState(GameStateManager.GameState.GAMEPLAY) ;
+        gsm.setState(GameStateManager.GameState.GAMEPLAY);
         hasPlayedMenuMusic = false;
         Settings.levelchecker();
         if (!musicPlayer.isMuted()) {
             musicPlayer.playRandomFromFolder("res/music/bgm");
         }
-
         startGameThread();
     }
 
+    // Mutes/unmutes the music
     private void toggleMute() {
         boolean wasMuted = musicPlayer.isMuted();
         musicPlayer.setMuted(!wasMuted);
@@ -147,15 +138,15 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
+    // Plays main menu music if not already playing
     private void playMenuMusic() {
-        if (hasPlayedMenuMusic || musicPlayer.isMuted()) {
-            return;
-        }
+        if (hasPlayedMenuMusic || musicPlayer.isMuted()) return;
         musicPlayer.stop();
         musicPlayer.playRandomFromFolder("res/music/menu");
         hasPlayedMenuMusic = true;
     }
 
+    // Starts a thread to listen for menu actions
     private void startMenuListenerThread() {
         menuListenerThread = new Thread(() -> {
             while (gsm.is(GameStateManager.GameState.MAIN_MENU) || gsm.is(GameStateManager.GameState.GAME_OVER)) {
@@ -171,6 +162,7 @@ public class GamePanel extends JPanel implements Runnable {
         menuListenerThread.start();
     }
 
+    // Starts the main game loop in a separate thread
     public void startGameThread() {
         stopExistingThreads();
         resetGameObjects();
@@ -179,11 +171,12 @@ public class GamePanel extends JPanel implements Runnable {
         gameThread = new Thread(this);
         gameThread.start();
     }
-    public void setRunning(boolean running) {
 
+    public void setRunning(boolean running) {
         this.running = running;
     }
 
+    // Stops running threads before switching state
     private void stopExistingThreads() {
         if (menuListenerThread != null && menuListenerThread.isAlive()) {
             menuListenerThread.interrupt();
@@ -198,7 +191,9 @@ public class GamePanel extends JPanel implements Runnable {
             }
         }
     }
-    public void returnToMainMenu(){
+
+    // Switches to the main menu state
+    public void returnToMainMenu() {
         stopExistingThreads();
         gsm.setState(GameStateManager.GameState.MAIN_MENU);
         this.requestFocusInWindow();
@@ -207,6 +202,7 @@ public class GamePanel extends JPanel implements Runnable {
         repaint();
     }
 
+    // Main game loop
     @Override
     public void run() {
         double drawInterval = 1000000000.0 / FPS;
@@ -215,10 +211,11 @@ public class GamePanel extends JPanel implements Runnable {
         long frames = 0;
 
         while (running) {
-            gpm.update();
-            repaint();
+            gpm.update();   // Game logic
+            repaint();      // Redraw screen
             frames++;
 
+            // FPS output every second
             if (System.nanoTime() - lastTime >= 1000000000) {
                 System.out.println("FPS: " + frames);
                 frames = 0;
@@ -236,17 +233,13 @@ public class GamePanel extends JPanel implements Runnable {
             }
         }
 
+        // Return to menu listener if game ends
         if (gsm.is(GameStateManager.GameState.GAME_OVER)) {
             startMenuListenerThread();
         }
     }
 
-
-
-
-
-
-
+    // Rendering based on game state
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -264,21 +257,19 @@ public class GamePanel extends JPanel implements Runnable {
                 renderGameOver(g2);
                 break;
         }
+
         g2.dispose();
     }
 
     private void renderMainMenu(Graphics2D g2) {
-
         uiManager.drawMainMenu(g2);
     }
 
-
-
     private void renderGameOver(Graphics2D g2) {
-
         uiManager.drawGameOver(g2, gpm.getScore());
     }
 
+    // Start game on ENTER key in menu
     public void handleKeyPress() {
         if (keyH.enterPressed) {
             keyH.enterPressed = false;
@@ -288,34 +279,26 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
+    // Fully resets and restarts the game
     public void restartGame() {
-        // Reset game objects and state
         resetGameObjects();
-       gsm.setState(GameStateManager.GameState.GAMEPLAY);  // Changed from MAIN_MENU to GAMEPLAY
-
-
-        // Stop any existing music and threads
+        gsm.setState(GameStateManager.GameState.GAMEPLAY);
         musicPlayer.stop();
+
         if (menuListenerThread != null && menuListenerThread.isAlive()) {
             menuListenerThread.interrupt();
         }
 
-        // Start the game fresh
-
-
-        // Play game music if not muted
         if (!musicPlayer.isMuted()) {
             musicPlayer.playRandomFromFolder("res/music/bgm");
         }
 
         startGameThread();
-
-        // Ensure focus is on the pane
         this.requestFocusInWindow();
     }
 
-
+    // Creates a new GamePlayManager with fresh state
     private void resetGameObjects() {
-        gpm = new GamePlayManager(this, keyH, gsm );
+        gpm = new GamePlayManager(this, keyH, gsm);
     }
 }

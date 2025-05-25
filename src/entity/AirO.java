@@ -23,6 +23,7 @@ public class AirO extends Entity {
     public int width;
     public int height;
 
+    //Initializes an airborne obstacle with animation frames and random positioning.
     public AirO(GamePanel gp) {
         this.gp = gp;
         this.width = gp.TILE_SIZE;
@@ -69,11 +70,11 @@ public class AirO extends Entity {
 
 
     public void setDefaultValues() {
-        x = rand.nextInt(1930) + 10000;
+        x = rand.nextInt(1930) + 7000;
         y = 400;
-        speed = 3;
+        speed = 4;
     }
-
+    //Moves the obstacle leftwards with increasing speed and handles animation.
     public void update() {
         speed = speed * 1.0001;
         speed = Math.min(speed, 25.0); //Stops speed at certain speed, to keep game playable
@@ -88,7 +89,7 @@ public class AirO extends Entity {
             animationCounter = 0;
         }
     }
-
+    //Renders the current animation frame or a fallback white rectangle.
     public void draw(Graphics2D g2) {
         if (frames != null && frames[frameIndex] != null) {
             g2.drawImage(frames[frameIndex], x, y, null);
@@ -99,7 +100,7 @@ public class AirO extends Entity {
 
         }
     }
-
+    //returns a smaller collision rectangle than the visual sprite.
     public Rectangle getHitbox() {
 
         return new Rectangle(x + 80, y, width / 8, height /3);

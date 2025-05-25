@@ -11,6 +11,7 @@ public class KeyHandler implements KeyListener {
         // Not used
     }
 
+    //Sets flags when WASD or Enter keys are pressed.
     @Override
     public void keyPressed(KeyEvent e) {
         int code = e.getKeyCode();
@@ -30,7 +31,7 @@ public class KeyHandler implements KeyListener {
             downPressed = true;
         }
     }
-
+    //Clears flags when WASD or Enter keys are released.
     @Override
     public void keyReleased(KeyEvent e) {
         int code = e.getKeyCode();

@@ -7,6 +7,7 @@ import java.io.*;
 public class SettingsMenu extends JDialog {
     private int coins;
 
+    //Creates settings dialog with collision/hitbox toggles and level purchase.
     public SettingsMenu(JFrame parent) {
         super(parent, "Settings", true); // Modal dialog
         setSize(350, 200);

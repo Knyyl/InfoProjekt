@@ -8,6 +8,7 @@ public class Settings {
     public static boolean level2 = false;
     public static int level = 1;
 
+    //Updates level based on level1/level2 boolean flags.
     public static void levelchecker(){
         if (level1) {
             level = 1;

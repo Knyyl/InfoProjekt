@@ -17,12 +17,8 @@ public class Movedaback extends Entity {
     GamePanel gp;
     GamePlayManager gpm;
 
-
-    // Wallpaper + bridge effect variables
-    private int x2;
-    private int b2;
-    private int x;
-    private int b;
+    // Positions for scrolling background and bridge
+    private int x2, b2, x, b;
     private int bspeed;
 
     public Movedaback(GamePanel gp, GamePlayManager gpm) {
@@ -30,7 +26,6 @@ public class Movedaback extends Entity {
         this.gpm = gpm;
         setDefaultValues();
 
-        // ——— Load the background image ———
         try {
             backgroundImage = ImageIO.read(new File("res/mainmenuwp/WPlvlonebb.png"));
             bridgeImage = ImageIO.read(new File("res/mainmenuwp/bridge.png"));
@@ -42,44 +37,37 @@ public class Movedaback extends Entity {
     public void setDefaultValues() {
         x = 0;
         x2 = backgroundWidth;
-
         b = 0;
         b2 = backgroundWidth;
-
         y = 0;
         speed = 3;
         bspeed = (int) (speed * 2);
     }
-
-
-
+    // Scroll background and bridge images left
     public void update() {
-        // Move all images left
+
         x -= speed;
         x2 -= speed;
         b -= bspeed;
         b2 -= bspeed;
 
-        // Reset positions when one image fully scrolls out of view
+        // Loop background images
         if (b <= -backgroundWidth) {
             b = b2 + backgroundWidth;
         }
-
         if (b2 <= -backgroundWidth) {
             b2 = b + backgroundWidth;
         }
         if (x <= -backgroundWidth) {
             x = x2 + backgroundWidth;
         }
-
         if (x2 <= -backgroundWidth) {
             x2 = x + backgroundWidth;
         }
     }
-
-
+    // Draw scrolling background and bridge
     public void draw(Graphics2D g2) {
-        // Draw both backgrounds to create the scrolling effect
+
         g2.drawImage(backgroundImage, x, y, null);
         g2.drawImage(backgroundImage, x2, y, null);
         g2.drawImage(bridgeImage, b, y - 100, null);

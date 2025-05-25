@@ -11,7 +11,7 @@ import java.util.Random;
 
 public class Coin extends Entity {
     int frameIndex = 0;
-    int animationSpeed = 5; // Lower = faster animation
+    int animationSpeed = 5; // lower = faster animation
     int animationCounter = 0;
     BufferedImage[] frames;
     GamePanel gp;
@@ -28,30 +28,26 @@ public class Coin extends Entity {
         this.gp = gp;
         this.gpm = gpm;
         setDefaultValues();
+
+        // Load and scale animation frames
         try {
             BufferedImage sheet = ImageIO.read(new File("res/sprites/coin.png"));
-            int origW = sheet.getWidth() / 15;   // original frame width / frames amount
-            int origH = sheet.getHeight();      // original frame height
-            int scaleFactor = 2;                // Bigger = bigger sprite
+            int origW = sheet.getWidth() / 15;
+            int origH = sheet.getHeight();
+            int scaleFactor = 2;
 
-            // update your obstacle dimensions
             width = origW * scaleFactor;
             height = origH * scaleFactor;
 
             frames = new BufferedImage[15];
             for (int i = 0; i < 15; i++) {
-                // extract the small frame
                 BufferedImage orig = sheet.getSubimage(i * origW, 0, origW, origH);
-
-                // create a new BufferedImage at the scaled size
                 BufferedImage scaled = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
                 Graphics2D g = scaled.createGraphics();
-                // use nearest‑neighbor to keep pixels sharp
                 g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
                         RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
                 g.drawImage(orig, 0, 0, width, height , null);
                 g.dispose();
-
                 frames[i] = scaled;
             }
         } catch (IOException e) {
@@ -60,24 +56,31 @@ public class Coin extends Entity {
     }
 
     public void setDefaultValues() {
+        // Spawn off-screen at random X and near player's Y
         x = rand.nextInt(1930) + 2000;
         y = gpm.player.y - 70;
     }
 
-
     public void update() {
+        // Move left
         x = (int) (x - speed);
+
+        // Respawn if off-screen
         if (x < -width) {
-            setDefaultValues(); // Respawn if off-screen
+            setDefaultValues();
         }
+
+        // Advance animation frame
         animationCounter++;
         if (animationCounter >= animationSpeed) {
             frameIndex = (frameIndex + 1) % frames.length;
             animationCounter = 0;
         }
+
+        // Check collision with player
         if (getHitbox().intersects(gpm.player.getHitbox())) {
             collectCoin();
-            setDefaultValues(); // Respawn
+            setDefaultValues();
         }
     }
 
@@ -85,14 +88,13 @@ public class Coin extends Entity {
         if (frames != null && frames[frameIndex] != null) {
             g2.drawImage(frames[frameIndex], x, y, null);
         } else {
-            // Fallback: draw a white box
+            // fallback visual
             g2.setColor(Color.white);
             g2.fillRect(x, y, width, height);
         }
     }
 
     public Rectangle getHitbox() {
-
         return new Rectangle(x , y, width, height);
     }
 
@@ -112,6 +114,7 @@ public class Coin extends Entity {
             return 0;
         }
     }
+
     public static void saveWalletCoins(int coins) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter("wallet.txt"))) {
             bw.write(String.valueOf(coins));

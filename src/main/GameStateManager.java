@@ -1,7 +1,7 @@
 package main;
 public class GameStateManager  {
 
-
+    //lists possible game states
     public enum GameState {
         MAIN_MENU,
         GAMEPLAY,

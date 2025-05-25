@@ -31,7 +31,8 @@ public class Player extends Entity {
     BufferedImage groundSheet;
     BufferedImage currentSheet;
     BufferedImage jumpSheet;
-    // Main constructor
+
+    // Main constructor,Initializes player with ground and jump spritesheets.
     public Player(GamePanel gp, KeyHandler keyH) {
         this.gp = gp;
         this.keyH = keyH;
@@ -81,6 +82,7 @@ public class Player extends Entity {
         speed = 4;
     }
 
+    //Handles player physics, jumping, and animation switching.
     public void update() {
         if (keyH == null) return;  // Safety check
         if(keyH.downPressed) {
@@ -135,7 +137,7 @@ public class Player extends Entity {
 
         return keyH.upPressed;
     }
-
+    //Draws player sprite based on current state.
     public void draw(Graphics2D g2) {
         if (frames != null && frames[frameIndex] != null) {
             g2.drawImage(frames[frameIndex], x, y, null);
@@ -145,7 +147,7 @@ public class Player extends Entity {
             g2.fillRect(x, y, width, height);
         }
     }
-
+    //Returns player's collision box smaller than sprite for precise collisions.
     public Rectangle getHitbox() {
         return new Rectangle(x +35, y+10, width /3, height - (height /3));
     }
