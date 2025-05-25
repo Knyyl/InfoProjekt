@@ -72,7 +72,7 @@ public class AirO extends Entity {
     public void setDefaultValues() {
         x = rand.nextInt(1930) + 7000;
         y = 400;
-        speed = 4;
+        speed = 3;
     }
     //Moves the obstacle leftwards with increasing speed and handles animation.
     public void update() {
@@ -81,7 +81,7 @@ public class AirO extends Entity {
         x = (int) (x - speed);
 
         if (x <= -100) {
-            x = rand.nextInt(1970) + 3000;
+            x = rand.nextInt(1920) + 2000;
         }
         animationCounter++;
         if (animationCounter >= animationSpeed) {
